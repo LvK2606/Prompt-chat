@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f8fc">
+  <meta name="description" content="PromptHub — Thư viện prompt tiếng Việt hữu ích cho ChatGPT, Claude, Gemini và các công cụ AI. Khám phá, lưu, tùy chỉnh và sao chép prompt chỉ trong một cú nhấp.">
+  <meta property="og:title" content="PromptHub — Thư viện prompt AI tiếng Việt">
+  <meta property="og:description" content="Biến ý tưởng thành kết quả với những prompt AI được tuyển chọn theo từng lĩnh vực.">
+  <meta property="og:type" content="website">
+  <title>PromptHub — Thư viện Prompt AI</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./prompts.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell" id="appShell">
+    <div class="mobile-scrim" id="mobileScrim"></div>
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="./" aria-label="PromptHub trang chủ">
+        <span class="brand-mark"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2.5 14.8 9.2 21.5 12l-6.7 2.8L12 21.5l-2.8-6.7L2.5 12l6.7-2.8L12 2.5Z" fill="currentColor"/><path d="m19.2 2.7.8 1.9 1.9.8-1.9.8-.8 1.9-.8-1.9-1.9-.8 1.9-.8.8-1.9Z" fill="#C4B5FD"/></svg></span>
+        <span>prompt<span class="brand-purple">hub</span><small>YOUR CREATIVE LIBRARY</small></span>
+      </a>
+      <div class="sidebar-scroll">
+        <p class="side-label">KHÔNG GIAN CỦA BẠN</p>
+        <nav aria-label="Điều hướng chính" id="primaryNav">
+          <button class="side-item active" data-view="all"><span class="side-icon">◫</span>Khám phá<span class="side-item-arrow">›</span></button>
+          <button class="side-item" data-view="featured"><span class="side-icon">✦</span>Nổi bật</button>
+          <button class="side-item" data-view="favorites"><span class="side-icon">♡</span>Đã lưu<span class="nav-count" id="favoriteCount">0</span></button>
+          <button class="side-item" data-view="mine"><span class="side-icon">▤</span>Prompt của tôi</button>
+        </nav>
+        <div class="sidebar-separator"></div>
+        <div class="side-heading"><p class="side-label">DANH MỤC</p><span class="side-hint" id="categoryCount"></span></div>
+        <nav id="categoryNav" aria-label="Danh mục prompt"></nav>
+      </div>
+      <div class="sidebar-bottom">
+        <div class="side-callout"><div class="callout-icon">✧</div><strong>Có ý tưởng hay?</strong><p>Lưu prompt của riêng bạn để dùng lại bất cứ lúc nào.</p><button type="button" id="sidebarCreate">+ Tạo prompt mới</button></div>
+        <div class="sidebar-mini">Made for curious minds <span>✦</span></div>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <div class="topbar-start"><button class="icon-button menu-toggle" id="sidebarToggle" aria-label="Mở danh mục">☰</button><span class="breadcrumb">Không gian sáng tạo <span class="crumb-divider">/</span> <strong id="breadcrumbText">Khám phá</strong></span></div>
+        <div class="topbar-end"><span class="topbar-note"><span class="online-dot"></span> Kho ý tưởng của bạn</span><button class="icon-button" id="themeToggle" aria-label="Đổi giao diện sáng tối" title="Đổi giao diện">☾</button><button class="button button-primary top-create" id="topCreate"><span>＋</span> Tạo prompt</button></div>
+      </header>
+
+      <main class="main-content">
+        <section class="hero" aria-label="Giới thiệu thư viện">
+          <div class="hero-glow hero-glow-one"></div><div class="hero-glow hero-glow-two"></div>
+          <div class="hero-text">
+            <span class="hero-eyebrow"><span class="eyebrow-star">✦</span> YOUR IDEAS, SUPERCHARGED <span class="eyebrow-line"></span></span>
+            <h1>Ý tưởng hay bắt đầu<br>từ một <em>prompt tốt.</em></h1>
+            <p>Khám phá bộ sưu tập prompt AI được tuyển chọn, giúp bạn học nhanh hơn, làm việc thông minh hơn và sáng tạo không giới hạn.</p>
+            <div class="hero-actions"><button class="button button-white" id="exploreBtn">Khám phá ngay <span aria-hidden="true">↗</span></button><button class="hero-text-link" id="heroCreate">Tạo prompt riêng <span>→</span></button></div>
+            <div class="hero-proof"><div class="proof-avatars"><span>✍</span><span>⌘</span><span>✦</span></div><div><strong id="heroPromptCount">36+ prompt</strong><small>Cho mọi ý tưởng của bạn</small></div></div>
+          </div>
+          <div class="hero-visual" aria-hidden="true">
+            <div class="orb orb-one"></div><div class="orb orb-two"></div>
+            <div class="visual-card visual-back"><span>✧ Creative thinking</span><div class="visual-line medium"></div><div class="visual-line"></div></div>
+            <div class="visual-card visual-front"><div class="visual-top"><span class="visual-icon">✦</span><span class="visual-badge">AI PROMPT</span></div><div class="visual-title">Biến ý tưởng<br>thành điều tuyệt vời<span>✦</span></div><div class="visual-line"></div><div class="visual-line short"></div><div class="visual-footer"><span>✦ PromptHub</span><span>↗</span></div></div>
+            <div class="visual-spark spark-one">✳</div><div class="visual-spark spark-two">✦</div>
+          </div>
+        </section>
+
+        <section class="stats-strip" aria-label="Thống kê"><div class="stat"><span class="stat-icon violet">✦</span><div><strong id="statPrompts">36+</strong><small>Prompt tuyển chọn</small></div></div><div class="stat"><span class="stat-icon orange">▦</span><div><strong id="statCategories">9</strong><small>Lĩnh vực đa dạng</small></div></div><div class="stat"><span class="stat-icon green">⚡</span><div><strong>1 click</strong><small>Sao chép tức thì</small></div></div><div class="stat"><span class="stat-icon pink">♡</span><div><strong id="statSaved">0</strong><small>Prompt đã lưu</small></div></div></section>
+
+        <section class="explore-section" id="explore">
+          <div class="section-intro"><div><span class="section-overline">DISCOVER YOUR NEXT IDEA</span><h2>Khám phá thư viện <span class="heading-flower">✳</span></h2><p>Chọn đúng công cụ, tìm đúng câu lệnh, tạo nên kết quả khác biệt.</p></div><button class="text-action" id="exportBtn" title="Xuất prompt tùy chỉnh và danh sách yêu thích">↗ Sao lưu dữ liệu</button></div>
+          <div class="search-panel">
+            <div class="search-input-wrap"><span class="search-glyph" aria-hidden="true">⌕</span><label for="searchInput" class="sr-only">Tìm kiếm prompt</label><input type="search" id="searchInput" placeholder="Tìm kiếm prompt, từ khóa, danh mục..." autocomplete="off"><kbd class="search-shortcut">Ctrl K</kbd></div>
+            <label class="sort-wrap" for="sortSelect"><span>↕</span><select id="sortSelect"><option value="popular">Phổ biến nhất</option><option value="latest">Mới nhất</option><option value="az">Tên A – Z</option></select></label>
+            <button class="button button-outline import-btn" id="importBtn" title="Nhập bản sao lưu JSON">⇧ <span>Nhập JSON</span></button><input id="importFile" type="file" accept=".json,application/json" hidden>
+          </div>
+          <div class="chip-row" id="quickFilters" aria-label="Lọc nhanh theo danh mục"></div>
+          <section class="featured-section" id="featuredSection"><div class="subsection-header"><div><span class="little-spark">✦</span><h3>Được yêu thích</h3><span class="subtle-pill">EDITOR'S PICKS</span></div><button class="text-action" id="viewFeatured">Xem tất cả →</button></div><div class="featured-grid" id="featuredGrid"></div></section>
+          <section class="library-section" id="librarySection"><div class="subsection-header library-title-row"><div><span class="little-spark">◈</span><h3 id="libraryTitle">Tất cả prompt</h3><span class="result-pill" id="resultCount">0 prompt</span></div><button class="text-action" id="clearFilters" hidden>Xóa bộ lọc ×</button></div><div class="prompt-grid" id="promptGrid"></div><div class="empty-state" id="emptyState" hidden><div class="empty-icon">⌕</div><h3>Chưa tìm thấy prompt phù hợp</h3><p>Thử từ khóa hoặc danh mục khác, hoặc tạo prompt của riêng bạn.</p><button class="button button-primary" id="emptyCreate">＋ Tạo prompt</button></div></section>
+        </section>
+        <section class="closing-cta"><div><span>✦ ĐẾN LƯỢT BẠN</span><h2>Một thư viện nhỏ. <em>Vô vàn khả năng.</em></h2><p>Thêm prompt riêng, lưu những gì bạn yêu thích và biến AI thành trợ lý thực thụ.</p></div><button class="button button-white" id="bottomCreate">Bắt đầu sáng tạo ↗</button></section>
+        <footer class="footer"><span>© 2026 PromptHub. Được tạo với sự tò mò ✦</span><span>Prompt công khai được tuyển chọn · Prompt bạn thêm được lưu trên trình duyệt này.</span></footer>
+      </main>
+    </div>
+  </div>
+
+  <dialog id="detailDialog" class="dialog detail-dialog" aria-labelledby="detailTitle"><div id="detailContent"></div></dialog>
+  <dialog id="editorDialog" class="dialog editor-dialog" aria-labelledby="editorDialogTitle"><div class="dialog-head"><div><span class="section-overline">YOUR CREATIVE SPACE</span><h2 id="editorDialogTitle">Tạo prompt của bạn</h2><p>Prompt này sẽ được lưu trên trình duyệt hiện tại.</p></div><button type="button" class="dialog-x" id="closeEditor" aria-label="Đóng">×</button></div>
+    <form id="promptForm" class="editor-form"><input type="hidden" id="editPromptId">
+      <label>Tiêu đề prompt <span>*</span><input id="formTitle" name="title" maxlength="100" placeholder="Ví dụ: Viết bài Facebook thu hút" required></label>
+      <label>Mô tả ngắn <span>*</span><input id="formSummary" name="summary" maxlength="240" placeholder="Prompt này giúp bạn làm gì?" required></label>
+      <div class="editor-two"><label>Danh mục <span>*</span><select id="formCategory" required></select></label><label>Mô hình AI <select id="formModel"><option value="Mọi AI">Mọi AI</option><option value="ChatGPT">ChatGPT</option><option value="Claude">Claude</option><option value="Gemini">Gemini</option><option value="Midjourney">Midjourney</option><option value="Khác">Khác</option></select></label></div>
+      <label>Thẻ (cách nhau bởi dấu phẩy)<input id="formTags" name="tags" maxlength="180" placeholder="content, ý tưởng, marketing"></label>
+      <label>Nội dung prompt <span>*</span><textarea id="formContent" name="content" rows="9" maxlength="12000" placeholder="Bạn là chuyên gia... Hãy giúp tôi..." required></textarea></label>
+      <div class="form-actions"><button type="button" class="button button-outline" id="cancelEditor">Hủy</button><button class="button button-primary" type="submit" id="saveEditor">Lưu prompt <span>→</span></button></div>
+    </form>
+  </dialog>
+  <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>
