@@ -1,0 +1,18 @@
+/* Clean TV / Claude Code — a source-labelled, safety-first editorial collection. */
+.clean-tv-section{margin-top:28px;padding:24px;border:1px solid #d5e6fb;border-radius:20px;background:linear-gradient(135deg,#f1faff 0%,#fafcff 54%,#f5f1ff 100%)}
+.clean-tv-section .subsection-header{margin-bottom:12px}
+.clean-tv-section h3{font-size:19px}
+.clean-tv-desc{color:#637188;line-height:1.75;font-size:12.5px;max-width:870px;margin:0 0 17px}
+.clean-tv-desc strong{color:#294663}
+.clean-tv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.clean-tv-grid .prompt-card{min-width:0;background:var(--panel);border:1px solid #d9e9fa;box-shadow:0 4px 16px #478bc010}
+.clean-tv-mark{display:inline-flex;align-items:center;gap:3px;justify-content:center;background:#dff5f3;color:#166968;padding:6px 8px;border-radius:8px;font-size:10px;font-weight:800;white-space:nowrap;margin-left:auto}
+.clean-tv-mark+.save-button{margin-left:0}
+body.dark .clean-tv-section{background:linear-gradient(135deg,#172b38,#23243e);border-color:#324b61}
+body.dark .clean-tv-desc{color:#c2cede}
+body.dark .clean-tv-desc strong{color:#e1efff}
+body.dark .clean-tv-grid .prompt-card{border-color:#3d5261}
+body.dark .clean-tv-mark{background:#1d4b4b;color:#b4f2e6}
+@media(max-width:1100px){.clean-tv-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.clean-tv-section{margin-top:24px;padding:17px 15px;border-radius:16px}.clean-tv-desc{font-size:11.5px;line-height:1.6}.clean-tv-section h3{font-size:16px}.clean-tv-grid{gap:10px}.clean-tv-mark{padding:5px 6px;font-size:9px}}
+@media(max-width:480px){.clean-tv-grid{grid-template-columns:minmax(0,1fr)}.clean-tv-grid .prompt-card{min-height:175px}.clean-tv-section .subsection-header{flex-wrap:wrap;gap:8px}}

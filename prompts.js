@@ -58,6 +58,12 @@ window.PROMPT_CATEGORIES = [
     "name": "Vibe Coding",
     "icon": "🚀",
     "color": "blue"
+  },
+  {
+    "id": "smarttv",
+    "name": "Clean TV",
+    "icon": "📺",
+    "color": "mint"
   }
 ];
 window.PROMPT_SEED = [
