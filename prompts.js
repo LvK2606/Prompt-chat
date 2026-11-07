@@ -64,6 +64,12 @@ window.PROMPT_CATEGORIES = [
     "name": "Clean TV",
     "icon": "📺",
     "color": "mint"
+  },
+  {
+    "id": "temple",
+    "name": "Chùa Online 3D",
+    "icon": "🪷",
+    "color": "purple"
   }
 ];
 window.PROMPT_SEED = [
