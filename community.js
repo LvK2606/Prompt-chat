@@ -46,9 +46,10 @@ async function openQueue(){
 try{const x=await api("queue");S.queue=x.prompts||[];const panel=$("moderationPanel");panel.hidden=false;panel.innerHTML='<div class="subsection-header"><h2>Đóng góp đang chờ duyệt ('+S.queue.length+')</h2><button type="button" class="text-action" id="hideQueue">Đóng ×</button></div>'+(S.queue.map(p=>'<article class="review-card"><h3>'+escape(p.title)+'</h3><p>'+escape(p.summary)+'</p><small>Người gửi: '+escape(p.ownerId)+'</small><pre>'+escape(p.content)+'</pre><div class="form-actions"><button class="button button-outline" data-reject="'+escape(p.id)+'">Từ chối</button><button class="button button-primary" data-approve="'+escape(p.id)+'">Duyệt</button></div></article>').join("")||"<p>Không có prompt nào đang chờ duyệt.</p>");$("hideQueue").onclick=()=>panel.hidden=true;panel.querySelectorAll("[data-approve],[data-reject]").forEach(b=>b.addEventListener("click",async()=>{const action=b.hasAttribute("data-approve")?"approve":"reject",id=b.dataset.approve||b.dataset.reject,reason=action==="reject"?prompt("Lý do từ chối:"):"";if(action==="reject"&&!reason?.trim())return;b.disabled=true;try{await api("review",{id,action,reason});S.hooks.toast("Đã xử lý đóng góp.");await openQueue();await refreshPublic()}catch(e){S.hooks.toast(e.message,true);b.disabled=false}}));panel.scrollIntoView({behavior:"smooth"});}
 catch(e){S.hooks.toast(e.message,true)}
 }
+async function importCloud(prompts,favorites){if(!S.user)return false;await api("import",{prompts,favorites});await refresh();return true}
 async function save(p){const result=await api("save",p);await refresh();return result}
 async function remove(id){await api("remove",{id});await refresh()}
 async function favorite(id,saved){if(!S.user)return;try{await api("favorite",{id,saved})}catch(e){S.hooks.toast(e.message,true);await refresh()}}
 async function contribute(id){if(!S.user){showAccount();return}try{await api("submit",{id});await refresh();S.hooks.toast("Đã gửi prompt để quản trị viên xét duyệt.")}catch(e){S.hooks.toast(e.message,true)}}
-window.PromptHubCommunity={init,save,remove,favorite,contribute,get signedIn(){return !!S.user},get user(){return S.user},get role(){return S.role}};
+window.PromptHubCommunity={init,save,remove,favorite,contribute,importCloud,get signedIn(){return !!S.user},get user(){return S.user},get role(){return S.role}};
 })();
