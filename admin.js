@@ -71,7 +71,7 @@ async function loadReviews(){
 }
 async function loadPrompts(){
  setLoading($("promptTable"));const data=await api("prompts",{params:{...state.filters.prompts,page:state.page.prompts,limit:15}});state.prompts=data.prompts;state.totals.prompts=data.total;
- $("promptTable").innerHTML=data.prompts.length?data.prompts.map(p=>'<tr><td><div class="cell-main"><strong>'+escape(p.title)+'</strong><small>'+escape(short(p.id,40))+'</small></div></td><td>'+escape(categories.find(c=>c.id===p.category)?.name||p.category)+'</td><td>'+pill(p.deletedAt?"deleted":p.status)+'</td><td>'+day(p.createdAt)+'</td><td><div class="cell-actions"><button class="tiny-btn" data-action="view-prompt" data-id="'+escape(p.id)+'">Xem</button>'+(isAdmin()?'<button class="tiny-btn" data-action="edit-prompt" data-id="'+escape(p.id)+'">Sửa</button><button class="tiny-btn '+(p.deletedAt?"good":"warn")+'" data-action="'+(p.deletedAt?"restore":"delete")+'" data-id="'+escape(p.id)+'">'+(p.deletedAt?"Khôi phục":"Xóa")+'</button>':'')+'</div></td></tr>').join(""):'<tr><td colspan="5">'+empty("Chưa có prompt khớp bộ lọc.")+'</td></tr>';
+ $("promptTable").innerHTML=data.prompts.length?data.prompts.map(p=>'<tr><td><div class="cell-main"><strong>'+escape(p.title)+'</strong><small>'+escape(short(p.id,40))+'</small></div></td><td>'+escape(categories.find(c=>c.id===p.category)?.name||p.category)+'</td><td>'+pill(p.deletedAt?"deleted":p.status)+'</td><td>'+day(p.createdAt)+'</td><td><div class="cell-actions"><button class="tiny-btn" data-action="view-prompt" data-id="'+escape(p.id)+'">Xem</button>'+(isAdmin()?'<button class="tiny-btn" data-action="edit-prompt" data-id="'+escape(p.id)+'">Sửa</button>'+(p.deletedAt?'':(p.status==='approved'?'<button class="tiny-btn" data-action="unpublish" data-id="'+escape(p.id)+'">Ẩn</button><button class="tiny-btn" data-action="'+(p.featured?'unfeature':'feature')+'" data-id="'+escape(p.id)+'">'+(p.featured?'Bỏ nổi bật':'Nổi bật')+'</button>':'<button class="tiny-btn good" data-action="publish" data-id="'+escape(p.id)+'">Xuất bản</button>'))+'<button class="tiny-btn '+(p.deletedAt?"good":"warn")+'" data-action="'+(p.deletedAt?"restore":"delete")+'" data-id="'+escape(p.id)+'">'+(p.deletedAt?"Khôi phục":"Xóa")+'</button>':'')+'</div></td></tr>').join(""):'<tr><td colspan="5">'+empty("Chưa có prompt khớp bộ lọc.")+'</td></tr>';
  pager("promptPager",data,"prompts");
 }
 function seedEffective(p){const ov=state.overrides.get(p.id);return {...p,...(ov?.overrides||{}),hidden:ov?.hidden||false,changed:!!ov&&Object.keys(ov.overrides||{}).length>0}}
@@ -181,6 +181,7 @@ function action(id,mode){
   return;
  }
  if(mode==="reset-seed"){confirmAction("Khôi phục nội dung gốc","Đặt lại các nội dung đã sửa cho "+id+". Trạng thái ẩn/hiện vẫn giữ nguyên.",()=>api("seed-reset",{method:"POST",body:{id}}));return}
+ if(mode==="publish"){confirmAction("Công khai prompt","Xuất bản prompt "+id+" để mọi người cùng xem?",()=>api("prompt-state",{method:"POST",body:{id,action:"approve"}}));return}
  if(["delete","restore","feature","unfeature","unpublish"].includes(mode)){
   confirmAction(mode==="delete"?"Chuyển vào thùng rác":"Thay đổi trạng thái",mode==="delete"?"Ẩn prompt "+id+" khỏi thư viện, vẫn có thể khôi phục.":"Xác nhận "+mode+" đối với "+id,()=>api("prompt-state",{method:"POST",body:{id,action:mode}}));
   return;
