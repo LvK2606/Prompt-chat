@@ -32,12 +32,12 @@
   const storedCustom = read(KEYS.custom, []);
   const storedFav = read(KEYS.favorites, []);
   const state = {
-    view:"all", category:"all", query:"", sort:"popular",
+    view:"all", category:"all", query:"", sort:"popular", shared:[],
     custom:(Array.isArray(storedCustom) ? storedCustom : []).slice(0,500).map(x=>normalizePrompt(x)).filter(Boolean),
     favorites:new Set((Array.isArray(storedFav) ? storedFav : []).filter(x=>typeof x === "string")),
     dark:read(KEYS.theme,false) === true
   };
-  const all = () => seed.concat(state.custom);
+  const all = () => seed.concat(state.shared.filter(p=>!state.custom.some(c=>c.id===p.id))).concat(state.custom);
   const findPrompt = id => all().find(p=>p.id === id);
   const getCategory = id => categories.find(c=>c.id === id) || categories[0] || {name:"Khác",icon:"✦",color:"purple"};
   function toast(message, error = false) {
@@ -134,7 +134,7 @@
   function toggleFavorite(id) {
     if(!findPrompt(id))return;
     if(state.favorites.has(id))state.favorites.delete(id);else state.favorites.add(id);
-    write(KEYS.favorites,[...state.favorites]);render();
+    if(window.PromptHubCommunity?.signedIn)window.PromptHubCommunity.favorite(id,state.favorites.has(id));else write(KEYS.favorites,[...state.favorites]);render();
     if($("detailDialog").open && $("detailDialog").dataset.prompt===id) openDetail(id,true);
   }
   function showDialog(dialog) {
@@ -150,7 +150,7 @@
       '<h2 id="detailTitle">'+escapeHTML(p.title)+'</h2><p class="detail-desc">'+escapeHTML(p.summary)+'</p><div class="detail-tags">'+tags+'</div>' +
       '<div class="detail-code-head"><span>NỘI DUNG PROMPT</span><span style="color:var(--muted);font-size:10px">'+p.content.length+' ký tự</span></div><pre class="prompt-text" id="detailPromptText"></pre>' +
       '<div class="detail-actions"><button class="button button-primary" type="button" data-copy="'+escapeHTML(id)+'">⧉ Sao chép prompt</button><button class="button button-outline" type="button" data-save="'+escapeHTML(id)+'">'+(saved?'♥ Đã lưu':'♡ Lưu prompt')+'</button>' +
-      (p.isCustom?'<button class="button button-outline" type="button" data-edit="'+escapeHTML(id)+'">✎ Sửa</button><button class="button button-outline" type="button" data-delete="'+escapeHTML(id)+'">Xóa</button>':'')+
+      (p.isCustom?'<button class="button button-outline" type="button" data-edit="'+escapeHTML(id)+'">✎ Sửa</button><button class="button button-outline" type="button" data-delete="'+escapeHTML(id)+'">Xóa</button>'+(window.PromptHubCommunity?.signedIn&&(!p.status||p.status==='private'||p.status==='rejected')?'<button class="button button-primary" type="button" data-contribute="'+escapeHTML(id)+'">↗ Đóng góp công khai</button>':'')+(p.status?'<span class="review-status">'+escapeHTML(({private:'Riêng tư',pending:'Chờ duyệt',approved:'Đã duyệt',rejected:'Bị từ chối'}[p.status]||p.status))+'</span>':''):'')+
       '<button class="button button-outline" type="button" data-download="'+escapeHTML(id)+'">↓ .txt</button></div><p class="detail-footnote">Mẹo: Thay nội dung trong [DẤU NGOẶC] bằng thông tin thực tế trước khi gửi cho AI.</p></div>';
     $("detailPromptText").textContent=p.content;
     $("detailDialog").dataset.prompt=id;
@@ -169,7 +169,7 @@
     showDialog($("editorDialog"));
     $("formTitle").focus();
   }
-  function saveEditor(event) {
+  async function saveEditor(event) {
     event.preventDefault();
     const title=trim($("formTitle").value,100),summary=trim($("formSummary").value,240),content=trim($("formContent").value,12000);
     if(!title||!summary||!content){toast("Vui lòng điền các trường bắt buộc.",true);return;}
@@ -177,15 +177,17 @@
     const current=originalId?state.custom.find(p=>p.id===originalId):null;
     const obj=normalizePrompt({id:current?current.id:generateId(),title,summary,content,category:$("formCategory").value,model:$("formModel").value,tags:$("formTags").value.split(",").map(s=>s.trim()),createdAt:current?current.createdAt:new Date().toISOString().slice(0,10)});
     if(!obj){toast("Không thể lưu prompt không hợp lệ.",true);return;}
+    if(window.PromptHubCommunity?.signedIn){try{await window.PromptHubCommunity.save({...obj,id:current?.id||undefined});closeDialog($("editorDialog"));state.view="mine";state.category="all";state.query="";$("searchInput").value="";render();toast("Đã lưu prompt vào tài khoản!");}catch(err){toast(err.message,true)}return;}
     if(current){state.custom=state.custom.map(p=>p.id===current.id?obj:p);}
     else{if(state.custom.length>=500){toast("Đã đạt giới hạn 500 prompt cá nhân.",true);return;}state.custom.unshift(obj);}
     write(KEYS.custom,state.custom);
     closeDialog($("editorDialog"));state.view="mine";state.category="all";state.query="";$("searchInput").value="";
     render();toast(current?"Đã cập nhật prompt!":"Đã lưu prompt mới vào trình duyệt!");
   }
-  function deleteCustom(id) {
+  async function deleteCustom(id) {
     const p=state.custom.find(x=>x.id===id);if(!p)return;
     if(!confirm('Xóa prompt "'+p.title+'"? Thao tác này không thể hoàn tác.'))return;
+    if(window.PromptHubCommunity?.signedIn){try{await window.PromptHubCommunity.remove(id);closeDialog($("detailDialog"));render();toast("Đã xóa prompt trên đám mây.");}catch(err){toast(err.message,true)}return;}
     state.custom=state.custom.filter(x=>x.id!==id);state.favorites.delete(id);
     write(KEYS.custom,state.custom);write(KEYS.favorites,[...state.favorites]);closeDialog($("detailDialog"));render();toast("Đã xóa prompt.");
   }
@@ -211,7 +213,7 @@
       state.custom=[...merged.values()].slice(0,500);
       const validIDs=new Set(seed.concat(state.custom).map(x=>x.id));
       state.favorites=new Set([...state.favorites,...parsed.favorites.filter(x=>typeof x==="string"&&validIDs.has(x))]);
-      write(KEYS.custom,state.custom);write(KEYS.favorites,[...state.favorites]);render();
+      if(window.PromptHubCommunity?.signedIn){await window.PromptHubCommunity.importCloud(state.custom,[...state.favorites]);}else{write(KEYS.custom,state.custom);write(KEYS.favorites,[...state.favorites]);render();}
       toast("Đã nhập bản sao lưu thành công!");
     }catch(_){toast("Không thể đọc file. Chỉ chấp nhận bản sao lưu từ PromptHub.",true);}
     finally{$("importFile").value="";}
@@ -224,6 +226,7 @@
     if(copyBtn){const p=findPrompt(copyBtn.dataset.copy);if(p)copy(p.content);return;}
     const saveBtn=event.target.closest("[data-save]");
     if(saveBtn){toggleFavorite(saveBtn.dataset.save);return;}
+    const contributeBtn=event.target.closest("[data-contribute]");if(contributeBtn){window.PromptHubCommunity?.contribute(contributeBtn.dataset.contribute);closeDialog($("detailDialog"));return;}
     const editBtn=event.target.closest("[data-edit]");
     if(editBtn){openEditor(editBtn.dataset.edit);return;}
     const deleteBtn=event.target.closest("[data-delete]");
@@ -260,6 +263,7 @@
     $("exportBtn").addEventListener("click",exportBackup);
     $("importBtn").addEventListener("click",()=>$("importFile").click());
     $("importFile").addEventListener("change",e=>importBackup(e.target.files?.[0]));
+    if(window.PromptHubCommunity)window.PromptHubCommunity.init({state,render,toast,readLocal:()=>{const v=read(KEYS.custom,[]);return(Array.isArray(v)?v:[]).slice(0,500).map(x=>normalizePrompt(x)).filter(Boolean)},readFavorites:()=>{const v=read(KEYS.favorites,[]);return Array.isArray(v)?v:[]}});
     for(const id of ["detailDialog","editorDialog"]){
       $(id).addEventListener("click",e=>{if(e.target===$(id))closeDialog($(id));});
     }

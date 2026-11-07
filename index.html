@@ -15,6 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
   <script src="./prompts.js" defer></script>
+  <script src="./community.js" defer></script>
   <script src="./app.js" defer></script>
 </head>
 <body>
@@ -38,7 +39,7 @@
         <nav id="categoryNav" aria-label="Danh mục prompt"></nav>
       </div>
       <div class="sidebar-bottom">
-        <div class="side-callout"><div class="callout-icon">✧</div><strong>Có ý tưởng hay?</strong><p>Lưu prompt của riêng bạn để dùng lại bất cứ lúc nào.</p><button type="button" id="sidebarCreate">+ Tạo prompt mới</button></div>
+        <div class="side-callout"><div class="callout-icon">✧</div><strong>Có ý tưởng hay?</strong><p>Đăng nhập để đồng bộ prompt và đóng góp cho cộng đồng.</p><button type="button" id="sidebarCreate">+ Tạo prompt mới</button></div>
         <div class="sidebar-mini">Made for curious minds <span>✦</span></div>
       </div>
     </aside>
@@ -87,7 +88,7 @@
   </div>
 
   <dialog id="detailDialog" class="dialog detail-dialog" aria-labelledby="detailTitle"><div id="detailContent"></div></dialog>
-  <dialog id="editorDialog" class="dialog editor-dialog" aria-labelledby="editorDialogTitle"><div class="dialog-head"><div><span class="section-overline">YOUR CREATIVE SPACE</span><h2 id="editorDialogTitle">Tạo prompt của bạn</h2><p>Prompt này sẽ được lưu trên trình duyệt hiện tại.</p></div><button type="button" class="dialog-x" id="closeEditor" aria-label="Đóng">×</button></div>
+  <dialog id="editorDialog" class="dialog editor-dialog" aria-labelledby="editorDialogTitle"><div class="dialog-head"><div><span class="section-overline">YOUR CREATIVE SPACE</span><h2 id="editorDialogTitle">Tạo prompt của bạn</h2><p>Prompt riêng tư; đăng nhập để đồng bộ và có thể gửi duyệt công khai.</p></div><button type="button" class="dialog-x" id="closeEditor" aria-label="Đóng">×</button></div>
     <form id="promptForm" class="editor-form"><input type="hidden" id="editPromptId">
       <label>Tiêu đề prompt <span>*</span><input id="formTitle" name="title" maxlength="100" placeholder="Ví dụ: Viết bài Facebook thu hút" required></label>
       <label>Mô tả ngắn <span>*</span><input id="formSummary" name="summary" maxlength="240" placeholder="Prompt này giúp bạn làm gì?" required></label>

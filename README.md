@@ -47,3 +47,26 @@ Kết nối repo GitHub với Vercel, framework **Other** (website tĩnh), root 
 - Không đưa API key, mật khẩu, thông tin cá nhân vào prompt công khai.
 
 MIT-style educational starter; nội dung mẫu có thể tùy chỉnh cho nhu cầu sử dụng.
+
+
+## Community v2 (đang phát triển)
+
+- Neon Postgres (Singapore) dùng lưu prompt và bookmark theo tài khoản.
+- Neon Auth (Better Auth) cung cấp đăng ký / đăng nhập email + mật khẩu. Đường dẫn `/api/auth/*` được Vercel reverse proxy cùng origin.
+- `api/community.js` kiểm tra session với Neon Auth qua cookie server-side trước khi đọc/ghi dữ liệu riêng tư.
+- Mặc định prompt riêng tư; người dùng chủ động gửi duyệt, chỉ prompt đã duyệt mới hiển thị ở thư viện công cộng.
+- Trang kiểm duyệt chỉ hiện với role `admin` hoặc `moderator`; quyền được kiểm tra lại trong API.
+- Một lần sau khi đăng nhập, ứng dụng tự chuyển prompt và dấu yêu thích cũ trong trình duyệt sang tài khoản (không tự xóa dữ liệu cũ).
+- Người dùng chưa đăng nhập vẫn xem bộ 36 prompt mẫu và có thể lưu dữ liệu cục bộ.
+
+### Thiết lập quyền quản trị (thao tác thủ công sau khi chủ sở hữu đăng ký)
+
+Trong Neon SQL Editor, thay `EMAIL_CUA_BAN` bằng đúng email tài khoản đã đăng ký:
+
+```sql
+INSERT INTO community_roles (user_id, role)
+SELECT id, 'admin' FROM neon_auth."user" WHERE email = 'EMAIL_CUA_BAN'
+ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
+```
+
+**Không có mật khẩu admin mặc định, không tự cấp admin cho người đăng ký đầu tiên.** Cài `DATABASE_URL` và `NEON_AUTH_URL` trong Vercel environment; không đưa connection string lên GitHub. Với Neon Auth, thiết lập domain tin cậy là `https://prompt-chat.vercel.app`.
