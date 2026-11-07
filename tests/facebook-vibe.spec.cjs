@@ -62,6 +62,7 @@ test('archived Facebook post is attributed honestly and linked safely', async ({
 });
 
 test('Reddit expansion sources are not mislabeled as Facebook posts', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('http://127.0.0.1:4173/');
   await page.locator('#vibeGrid [data-open="fbv-001"]').click();
   await page.locator('#detailDialog [data-close="detail"]').click();
