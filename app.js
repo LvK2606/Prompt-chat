@@ -68,6 +68,7 @@
     let items = all().filter(p => {
       if (state.view === "featured" && !p.featured) return false;
       if (state.view === "trending" && !p.trending) return false;
+      if (state.view === "vibe" && !p.facebookVibe) return false;
       if (state.view === "favorites" && !state.favorites.has(p.id)) return false;
       if (state.view === "mine" && !p.isCustom) return false;
       if (state.category !== "all" && p.category !== state.category) return false;
@@ -84,7 +85,7 @@
     const tags=p.tags.slice(0,3).map(t=>'<span class="tag">#'+escapeHTML(t)+'</span>').join("");
     return '<article class="prompt-card" role="button" tabindex="0" data-open="'+escapeHTML(p.id)+'" aria-label="Xem prompt: '+escapeHTML(p.title)+'">' +
       '<div class="card-top"><span class="card-emoji '+cat.color+'">'+escapeHTML(cat.icon)+'</span><span class="card-category">'+escapeHTML(cat.name)+'</span>' +
-      (p.isCustom ? '<span class="card-my-label">Của tôi</span>' : (p.trending ? '<span class="trend-mark" title="Biên soạn từ xu hướng cộng đồng">🔥 Xu hướng</span>' : '')) +
+      (p.isCustom ? '<span class="card-my-label">Của tôi</span>' : (p.facebookVibe ? '<span class="vibe-mark" title="Prompt biên soạn mới từ nguồn được ghi rõ">🚀 Vibe</span>' : (p.trending ? '<span class="trend-mark" title="Biên soạn từ xu hướng cộng đồng">🔥 Xu hướng</span>' : ''))) +
       '<button class="save-button'+(favorite?' saved':'')+'" type="button" aria-label="'+(favorite?'Bỏ lưu':'Lưu')+' '+escapeHTML(p.title)+'" aria-pressed="'+favorite+'" data-save="'+escapeHTML(p.id)+'">'+(favorite?'♥':'♡')+'</button></div>' +
       '<h4>'+escapeHTML(p.title)+'</h4><p>'+escapeHTML(p.summary)+'</p><div class="card-tags">'+tags+'</div>' +
       '<div class="card-foot"><span class="model-label"><span>✦</span>'+escapeHTML(p.model)+'</span><button type="button" class="copy-mini" data-copy="'+escapeHTML(p.id)+'">↗ Sao chép</button></div></article>';
@@ -104,8 +105,8 @@
   function render() {
     const items=getVisible();
     const total=all().length;
-    const viewNames={all:"Khám phá",featured:"Nổi bật",trending:"Xu hướng cộng đồng",favorites:"Đã lưu",mine:"Prompt của tôi"};
-    const title=state.view === "all" && state.category !== "all" ? getCategory(state.category).name : ({all:"Tất cả prompt",featured:"Prompt nổi bật",trending:"Prompt xu hướng",favorites:"Prompt đã lưu",mine:"Prompt của tôi"}[state.view]||"Tất cả prompt");
+    const viewNames={all:"Khám phá",featured:"Nổi bật",trending:"Xu hướng cộng đồng",vibe:"Vibe Coding",favorites:"Đã lưu",mine:"Prompt của tôi"};
+    const title=state.view === "all" && state.category !== "all" ? getCategory(state.category).name : ({all:"Tất cả prompt",featured:"Prompt nổi bật",trending:"Prompt xu hướng",vibe:"Vibe Coding · 24 prompt",favorites:"Prompt đã lưu",mine:"Prompt của tôi"}[state.view]||"Tất cả prompt");
     $("breadcrumbText").textContent=state.category!=="all" ? getCategory(state.category).name : viewNames[state.view];
     $("libraryTitle").textContent=title;
     $("resultCount").textContent=items.length+" prompt";
@@ -122,6 +123,9 @@
     const showFeatured=state.view==="all"&&state.category==="all"&&!state.query.trim();
     $("featuredSection").hidden=!showFeatured;
     $("trendingSection").hidden=!showFeatured;
+    $("vibeSection").hidden=!showFeatured;
+    $("vibeCount").textContent=String(seed.filter(p=>p.facebookVibe).length);
+    if(showFeatured) $("vibeGrid").innerHTML=seed.filter(p=>p.facebookVibe).slice(0,6).map(cardMarkup).join("");
     $("trendingCount").textContent=String(seed.filter(p=>p.trending).length);
     if(showFeatured) $("trendingGrid").innerHTML=seed.filter(p=>p.trending).slice(0,6).map(cardMarkup).join("");
     if(showFeatured) $("featuredGrid").innerHTML=seed.filter(p=>p.featured).slice(0,3).map(featuredMarkup).join("");
@@ -153,7 +157,8 @@
     const p=findPrompt(id);if(!p)return;
     const cat=getCategory(p.category),saved=state.favorites.has(id);
     const tags=p.tags.map(t=>'<span class="tag">#'+escapeHTML(t)+'</span>').join("");
-    const sourceLink=p.trending && typeof p.sourceUrl==="string" && /^https:\/\/(www\.reddit\.com|github\.com)\//.test(p.sourceUrl) ? '<p class="prompt-source">🔎 Chủ đề tham khảo: <a href="'+escapeHTML(p.sourceUrl)+'" target="_blank" rel="noopener noreferrer">'+escapeHTML(p.sourceName||"Cộng đồng AI")+' ↗</a><span>Prompt đã được biên soạn lại, không sao chép nguyên văn.</span></p>' : "";
+    const permittedSource=p.trending && typeof p.sourceUrl==="string" && /^https:\/\/(www\.reddit\.com|github\.com|vibecodingislife\.com|vibeheatmap\.com|getvibekits\.com)\//.test(p.sourceUrl);
+    const sourceLink=permittedSource ? '<p class="prompt-source">🔎 Chủ đề tham khảo: <a href="'+escapeHTML(p.sourceUrl)+'" target="_blank" rel="noopener noreferrer">'+escapeHTML(p.sourceName||"Cộng đồng AI")+' ↗</a><span>'+escapeHTML(p.sourcePlatform||"Nguồn tham khảo công khai")+'. Prompt tiếng Việt được biên soạn độc lập, không sao chép nguyên văn.</span></p>' : "";
     $("detailContent").innerHTML='<div class="detail-main"><div class="detail-eyebrow"><span class="detail-emoji">'+escapeHTML(cat.icon)+'</span>'+escapeHTML(cat.name)+' <span>·</span> '+escapeHTML(p.model)+'<button class="dialog-x" type="button" data-close="detail" style="margin-left:auto" aria-label="Đóng">×</button></div>' +
       '<h2 id="detailTitle">'+escapeHTML(p.title)+'</h2><p class="detail-desc">'+escapeHTML(p.summary)+'</p>'+sourceLink+'<div class="detail-tags">'+tags+'</div>' +
       '<div class="detail-code-head"><span>NỘI DUNG PROMPT</span><span style="color:var(--muted);font-size:10px">'+p.content.length+' ký tự</span></div><pre class="prompt-text" id="detailPromptText"></pre>' +
@@ -266,6 +271,7 @@
     $("exploreBtn").addEventListener("click",()=>navigate("all"));
     $("viewFeatured").addEventListener("click",()=>navigate("featured"));
     $("viewTrending").addEventListener("click",()=>navigate("trending"));
+    $("viewVibe").addEventListener("click",()=>navigate("vibe"));
     $("loadMoreBtn").addEventListener("click",()=>{state.visibleLimit+=24;render();});
     $("clearFilters").addEventListener("click",()=>{state.query="";$("searchInput").value="";navigate("all");});
     $("closeEditor").addEventListener("click",()=>closeDialog($("editorDialog")));

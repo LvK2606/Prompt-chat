@@ -1,21 +1,21 @@
 const { test, expect } = require('@playwright/test');
 
-test('100 prompts across all 9 categories, including 64 sourced trends', async ({ page }) => {
+test('124 prompts across all 10 categories, including 64 prior sourced trends', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('http://127.0.0.1:4173/', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('#statPrompts')).toHaveText('100');
-  await expect(page.locator('#trendingCount')).toHaveText('64');
-  await expect(page.locator('#statCategories')).toHaveText('9');
+  await expect(page.locator('#statPrompts')).toHaveText('124');
+  await expect(page.locator('#trendingCount')).toHaveText('88');
+  await expect(page.locator('#statCategories')).toHaveText('10');
   await expect(page.locator('#trendingGrid .prompt-card')).toHaveCount(6);
   await expect(page.locator('#promptGrid .prompt-card')).toHaveCount(24);
   await expect(page.locator('#loadMoreBtn')).toBeVisible();
   const data = await page.evaluate(() => ({
     total: window.PROMPT_SEED.length,
     ids: new Set(window.PROMPT_SEED.map(p => p.id)).size,
-    trends: window.PROMPT_SEED.filter(p => p.trending),
+    trends: window.PROMPT_SEED.filter(p => p.trending && !p.facebookVibe),
   }));
-  expect(data.total).toBe(100);
-  expect(data.ids).toBe(100);
+  expect(data.total).toBe(124);
+  expect(data.ids).toBe(124);
   expect(data.trends).toHaveLength(64);
   expect(new Set(data.trends.map(p => p.category)).size).toBe(9);
   for (const p of data.trends) {
@@ -31,7 +31,7 @@ test('trending navigation loads in batches without document overflow', async ({ 
   await page.goto('http://127.0.0.1:4173/');
   await page.locator('#sidebarToggle').click();
   await page.locator('#primaryNav [data-view="trending"]').click();
-  await expect(page.locator('#resultCount')).toHaveText('64 prompt');
+  await expect(page.locator('#resultCount')).toHaveText('88 prompt');
   await expect(page.locator('#trendingSection')).toBeHidden();
   await expect(page.locator('#promptGrid .prompt-card')).toHaveCount(24);
   await page.locator('#loadMoreBtn').click();
