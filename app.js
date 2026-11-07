@@ -70,6 +70,7 @@
       if (state.view === "trending" && !p.trending) return false;
       if (state.view === "vibe" && !p.facebookVibe) return false;
       if (state.view === "cleantv" && !p.cleanTv) return false;
+      if (state.view === "temple" && !p.onlineTemple) return false;
       if (state.view === "favorites" && !state.favorites.has(p.id)) return false;
       if (state.view === "mine" && !p.isCustom) return false;
       if (state.category !== "all" && p.category !== state.category) return false;
@@ -86,7 +87,7 @@
     const tags=p.tags.slice(0,3).map(t=>'<span class="tag">#'+escapeHTML(t)+'</span>').join("");
     return '<article class="prompt-card" role="button" tabindex="0" data-open="'+escapeHTML(p.id)+'" aria-label="Xem prompt: '+escapeHTML(p.title)+'">' +
       '<div class="card-top"><span class="card-emoji '+cat.color+'">'+escapeHTML(cat.icon)+'</span><span class="card-category">'+escapeHTML(cat.name)+'</span>' +
-      (p.isCustom ? '<span class="card-my-label">Của tôi</span>' : (p.cleanTv ? '<span class="clean-tv-mark" title="Prompt biên soạn từ tài liệu CleanYourTV và cộng đồng">📺 Clean TV</span>' : (p.facebookVibe ? '<span class="vibe-mark" title="Prompt biên soạn mới từ nguồn được ghi rõ">🚀 Vibe</span>' : (p.trending ? '<span class="trend-mark" title="Biên soạn từ xu hướng cộng đồng">🔥 Xu hướng</span>' : '')))) +
+      (p.isCustom ? '<span class="card-my-label">Của tôi</span>' : (p.onlineTemple ? '<span class="online-temple-mark" title="Prompt biên soạn độc lập từ trend chùa online">🪷 Chùa 3D</span>' : (p.cleanTv ? '<span class="clean-tv-mark" title="Prompt biên soạn từ tài liệu CleanYourTV và cộng đồng">📺 Clean TV</span>' : (p.facebookVibe ? '<span class="vibe-mark" title="Prompt biên soạn mới từ nguồn được ghi rõ">🚀 Vibe</span>' : (p.trending ? '<span class="trend-mark" title="Biên soạn từ xu hướng cộng đồng">🔥 Xu hướng</span>' : ''))))) +
       '<button class="save-button'+(favorite?' saved':'')+'" type="button" aria-label="'+(favorite?'Bỏ lưu':'Lưu')+' '+escapeHTML(p.title)+'" aria-pressed="'+favorite+'" data-save="'+escapeHTML(p.id)+'">'+(favorite?'♥':'♡')+'</button></div>' +
       '<h4>'+escapeHTML(p.title)+'</h4><p>'+escapeHTML(p.summary)+'</p><div class="card-tags">'+tags+'</div>' +
       '<div class="card-foot"><span class="model-label"><span>✦</span>'+escapeHTML(p.model)+'</span><button type="button" class="copy-mini" data-copy="'+escapeHTML(p.id)+'">↗ Sao chép</button></div></article>';
@@ -106,8 +107,8 @@
   function render() {
     const items=getVisible();
     const total=all().length;
-    const viewNames={all:"Khám phá",featured:"Nổi bật",trending:"Xu hướng cộng đồng",vibe:"Vibe Coding",cleantv:"Clean TV với Claude",favorites:"Đã lưu",mine:"Prompt của tôi"};
-    const title=state.view === "all" && state.category !== "all" ? getCategory(state.category).name : ({all:"Tất cả prompt",featured:"Prompt nổi bật",trending:"Prompt xu hướng",vibe:"Vibe Coding · 24 prompt",cleantv:"Clean TV · 16 prompt",favorites:"Prompt đã lưu",mine:"Prompt của tôi"}[state.view]||"Tất cả prompt");
+    const viewNames={all:"Khám phá",featured:"Nổi bật",trending:"Xu hướng cộng đồng",vibe:"Vibe Coding",cleantv:"Clean TV với Claude",temple:"Đi chùa online",favorites:"Đã lưu",mine:"Prompt của tôi"};
+    const title=state.view === "all" && state.category !== "all" ? getCategory(state.category).name : ({all:"Tất cả prompt",featured:"Prompt nổi bật",trending:"Prompt xu hướng",vibe:"Vibe Coding · 24 prompt",cleantv:"Clean TV · 16 prompt",temple:"Đi chùa online · 16 prompt",favorites:"Prompt đã lưu",mine:"Prompt của tôi"}[state.view]||"Tất cả prompt");
     $("breadcrumbText").textContent=state.category!=="all" ? getCategory(state.category).name : viewNames[state.view];
     $("libraryTitle").textContent=title;
     $("resultCount").textContent=items.length+" prompt";
@@ -126,6 +127,9 @@
     $("trendingSection").hidden=!showFeatured;
     $("vibeSection").hidden=!showFeatured;
     $("cleanTvSection").hidden=!showFeatured;
+    $("onlineTempleSection").hidden=!showFeatured;
+    $("templeCount").textContent=String(seed.filter(p=>p.onlineTemple).length);
+    if(showFeatured) $("onlineTempleGrid").innerHTML=seed.filter(p=>p.onlineTemple).slice(0,6).map(cardMarkup).join("");
     $("cleanTvCount").textContent=String(seed.filter(p=>p.cleanTv).length);
     if(showFeatured) $("cleanTvGrid").innerHTML=seed.filter(p=>p.cleanTv).slice(0,6).map(cardMarkup).join("");
     $("vibeCount").textContent=String(seed.filter(p=>p.facebookVibe).length);
@@ -161,7 +165,7 @@
     const p=findPrompt(id);if(!p)return;
     const cat=getCategory(p.category),saved=state.favorites.has(id);
     const tags=p.tags.map(t=>'<span class="tag">#'+escapeHTML(t)+'</span>').join("");
-    const permittedSource=p.trending && typeof p.sourceUrl==="string" && /^https:\/\/(www\.reddit\.com|github\.com|vibecodingislife\.com|vibeheatmap\.com|getvibekits\.com)\//.test(p.sourceUrl);
+    const permittedSource=p.trending && typeof p.sourceUrl==="string" && /^https:\/\/(www\.reddit\.com|github\.com|vibecodingislife\.com|vibeheatmap\.com|getvibekits\.com|sansatemple\.com|www\.yna\.co\.kr|znews\.vn|news\.tuoitre\.vn|fpt\.vn|cellphones\.com\.vn|vov\.vn|vtcnews\.vn|vnexpress\.net|www\.koreatimes\.co\.kr)\//.test(p.sourceUrl);
     const sourceLink=permittedSource ? '<p class="prompt-source">🔎 Chủ đề tham khảo: <a href="'+escapeHTML(p.sourceUrl)+'" target="_blank" rel="noopener noreferrer">'+escapeHTML(p.sourceName||"Cộng đồng AI")+' ↗</a><span>'+escapeHTML(p.sourcePlatform||"Nguồn tham khảo công khai")+'. Prompt tiếng Việt được biên soạn độc lập, không sao chép nguyên văn.</span></p>' : "";
     $("detailContent").innerHTML='<div class="detail-main"><div class="detail-eyebrow"><span class="detail-emoji">'+escapeHTML(cat.icon)+'</span>'+escapeHTML(cat.name)+' <span>·</span> '+escapeHTML(p.model)+'<button class="dialog-x" type="button" data-close="detail" style="margin-left:auto" aria-label="Đóng">×</button></div>' +
       '<h2 id="detailTitle">'+escapeHTML(p.title)+'</h2><p class="detail-desc">'+escapeHTML(p.summary)+'</p>'+sourceLink+'<div class="detail-tags">'+tags+'</div>' +
@@ -277,6 +281,7 @@
     $("viewTrending").addEventListener("click",()=>navigate("trending"));
     $("viewVibe").addEventListener("click",()=>navigate("vibe"));
     $("viewCleanTv").addEventListener("click",()=>navigate("cleantv"));
+    $("viewTemple").addEventListener("click",()=>navigate("temple"));
     $("loadMoreBtn").addEventListener("click",()=>{state.visibleLimit+=24;render();});
     $("clearFilters").addEventListener("click",()=>{state.query="";$("searchInput").value="";navigate("all");});
     $("closeEditor").addEventListener("click",()=>closeDialog($("editorDialog")));
