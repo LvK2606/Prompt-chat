@@ -4,12 +4,12 @@ PromptHub là website thư viện prompt AI xây dựng cho repository **LvK2606
 
 ## Chức năng
 
-- 36 prompt mẫu có nội dung thực tế trong 9 nhóm: Viết lách, Lập trình, Marketing, Thiết kế, Học tập, Kinh doanh, Sáng tạo, Năng suất và AI nâng cao.
+- 100 prompt mẫu có nội dung thực tế trong 9 nhóm: Viết lách, Lập trình, Marketing, Thiết kế, Học tập, Kinh doanh, Sáng tạo, Năng suất và AI nâng cao.
 - Tìm kiếm không phân biệt dấu tiếng Việt (Ctrl/Cmd + K), lọc theo danh mục, sắp xếp và xem chi tiết.
 - Sao chép prompt chỉ một click, tải nội dung từng prompt (.txt), đánh dấu yêu thích.
 - Thêm, chỉnh sửa, xóa prompt cá nhân; xuất/nhập bản sao lưu JSON.
 - Giao diện sáng/tối; mobile responsive, hỗ trợ bàn phím và nhãn accessibility.
-- Không thu thập thông tin người dùng; không cần backend để sử dụng.
+- Khách chưa đăng nhập vẫn xem và lưu prompt cục bộ; khi đăng nhập, dữ liệu cá nhân và email tài khoản được lưu và xử lý qua Neon Auth + PostgreSQL.
 
 ## Sử dụng và chạy cục bộ
 
@@ -70,3 +70,17 @@ ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
 ```
 
 **Không có mật khẩu admin mặc định, không tự cấp admin cho người đăng ký đầu tiên.** Cài `DATABASE_URL` và `NEON_AUTH_URL` trong Vercel environment; không đưa connection string lên GitHub. Với Neon Auth, thiết lập domain tin cậy là `https://prompt-chat.vercel.app`.
+
+
+## Bản bổ sung: 64 prompt theo xu hướng diễn đàn (ngày 07/11/2026)
+
+- Tổng cộng **100 prompt**: 36 mẫu trước đó và 64 mẫu mới ở 9 danh mục.
+- 64 mẫu được **viết mới bằng tiếng Việt**, tham khảo chủ đề thảo luận trên Reddit (r/ChatGPT, r/ChatGPTPromptGenius, r/PromptEngineering, r/Resume, r/promptingmagic) và bộ sưu tập [f/prompts.chat](https://github.com/f/prompts.chat).
+- Mỗi prompt xu hướng có `sourceName` và `sourceUrl` để xem nguồn ý tưởng. Đây là **nguồn tham khảo chủ đề**, không phải tuyên bố sao chép hay lấy nguyên văn prompt của tác giả.
+- **Xu hướng** có nghĩa là chủ đề đáng quan tâm theo mẫu bài viết được tham khảo tính đến ngày biên soạn; **không** phải bảng xếp hạng lượt vote tự động, không đại diện tất cả diễn đàn và không được bảo đảm hiệu quả trong mọi trường hợp.
+- Phần giao diện có mục `Xu hướng cộng đồng` trong sidebar, trưng bày 6 gợi ý nổi bật, danh sách 64 mục, trang chi tiết nguồn tham khảo và nút **Xem thêm prompt** (24 thẻ/lần) để nhẹ hơn trên điện thoại.
+- Bộ 64 prompt được lưu trong `trending-prompts-{1..4}.js`, nhập sau `prompts.js`. IDs có dạng `hot-001` đến `hot-064`, không trùng dữ liệu cũ; bookmark IDs `hot-...` được API hỗ trợ khi đồng bộ tài khoản.
+- Kiểm thử trình duyệt: `npm run test:responsive`, gồm kiểm tra mobile và danh mục 100 prompt.
+
+**Quyền tác giả:** các mẫu mới không chép nguyên văn Reddit. Nếu bổ sung prompt trực tiếp từ bộ sưu tập bên thứ ba sau này, phải kiểm tra điều khoản/giấy phép riêng của nguồn đó.
+
