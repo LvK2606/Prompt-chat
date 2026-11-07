@@ -10,7 +10,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "test:responsive": "playwright test tests/responsive.spec.cjs"
+    "test:responsive": "playwright test",
+    "test:trending": "playwright test tests/trending.spec.cjs"
   },
   "devDependencies": {
     "@playwright/test": "1.56.1"

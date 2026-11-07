@@ -32,7 +32,7 @@
   const storedCustom = read(KEYS.custom, []);
   const storedFav = read(KEYS.favorites, []);
   const state = {
-    view:"all", category:"all", query:"", sort:"popular", shared:[],
+    view:"all", category:"all", query:"", sort:"popular", shared:[], visibleLimit:24,
     custom:(Array.isArray(storedCustom) ? storedCustom : []).slice(0,500).map(x=>normalizePrompt(x)).filter(Boolean),
     favorites:new Set((Array.isArray(storedFav) ? storedFav : []).filter(x=>typeof x === "string")),
     dark:read(KEYS.theme,false) === true
@@ -58,6 +58,7 @@
   function navigate(view = "all", category = "all") {
     state.view = view;
     state.category = category;
+    state.visibleLimit = 24;
     closeSidebar();
     render();
     $("explore").scrollIntoView({behavior:"smooth",block:"start"});
@@ -66,6 +67,7 @@
     const query = fold(state.query.trim());
     let items = all().filter(p => {
       if (state.view === "featured" && !p.featured) return false;
+      if (state.view === "trending" && !p.trending) return false;
       if (state.view === "favorites" && !state.favorites.has(p.id)) return false;
       if (state.view === "mine" && !p.isCustom) return false;
       if (state.category !== "all" && p.category !== state.category) return false;
@@ -82,7 +84,7 @@
     const tags=p.tags.slice(0,3).map(t=>'<span class="tag">#'+escapeHTML(t)+'</span>').join("");
     return '<article class="prompt-card" role="button" tabindex="0" data-open="'+escapeHTML(p.id)+'" aria-label="Xem prompt: '+escapeHTML(p.title)+'">' +
       '<div class="card-top"><span class="card-emoji '+cat.color+'">'+escapeHTML(cat.icon)+'</span><span class="card-category">'+escapeHTML(cat.name)+'</span>' +
-      (p.isCustom ? '<span class="card-my-label">Của tôi</span>' : '') +
+      (p.isCustom ? '<span class="card-my-label">Của tôi</span>' : (p.trending ? '<span class="trend-mark" title="Biên soạn từ xu hướng cộng đồng">🔥 Xu hướng</span>' : '')) +
       '<button class="save-button'+(favorite?' saved':'')+'" type="button" aria-label="'+(favorite?'Bỏ lưu':'Lưu')+' '+escapeHTML(p.title)+'" aria-pressed="'+favorite+'" data-save="'+escapeHTML(p.id)+'">'+(favorite?'♥':'♡')+'</button></div>' +
       '<h4>'+escapeHTML(p.title)+'</h4><p>'+escapeHTML(p.summary)+'</p><div class="card-tags">'+tags+'</div>' +
       '<div class="card-foot"><span class="model-label"><span>✦</span>'+escapeHTML(p.model)+'</span><button type="button" class="copy-mini" data-copy="'+escapeHTML(p.id)+'">↗ Sao chép</button></div></article>';
@@ -102,8 +104,8 @@
   function render() {
     const items=getVisible();
     const total=all().length;
-    const viewNames={all:"Khám phá",featured:"Nổi bật",favorites:"Đã lưu",mine:"Prompt của tôi"};
-    const title=state.view === "all" && state.category !== "all" ? getCategory(state.category).name : ({all:"Tất cả prompt",featured:"Prompt nổi bật",favorites:"Prompt đã lưu",mine:"Prompt của tôi"}[state.view]||"Tất cả prompt");
+    const viewNames={all:"Khám phá",featured:"Nổi bật",trending:"Xu hướng cộng đồng",favorites:"Đã lưu",mine:"Prompt của tôi"};
+    const title=state.view === "all" && state.category !== "all" ? getCategory(state.category).name : ({all:"Tất cả prompt",featured:"Prompt nổi bật",trending:"Prompt xu hướng",favorites:"Prompt đã lưu",mine:"Prompt của tôi"}[state.view]||"Tất cả prompt");
     $("breadcrumbText").textContent=state.category!=="all" ? getCategory(state.category).name : viewNames[state.view];
     $("libraryTitle").textContent=title;
     $("resultCount").textContent=items.length+" prompt";
@@ -112,11 +114,16 @@
     $("statSaved").textContent=String([...state.favorites].filter(id=>Boolean(findPrompt(id))).length);
     $("favoriteCount").textContent=$("statSaved").textContent;
     $("heroPromptCount").textContent=total+" prompt sẵn sàng";
-    $("promptGrid").innerHTML=items.map(cardMarkup).join("");
+    $("promptGrid").innerHTML=items.slice(0,state.visibleLimit).map(cardMarkup).join("");
+    $("loadMoreBtn").hidden=items.length<=state.visibleLimit;
+    $("loadMoreBtn").textContent="Xem thêm prompt · "+Math.min(state.visibleLimit,items.length)+"/"+items.length;
     $("emptyState").hidden=items.length!==0;
     $("clearFilters").hidden=state.view==="all"&&state.category==="all"&&!state.query;
     const showFeatured=state.view==="all"&&state.category==="all"&&!state.query.trim();
     $("featuredSection").hidden=!showFeatured;
+    $("trendingSection").hidden=!showFeatured;
+    $("trendingCount").textContent=String(seed.filter(p=>p.trending).length);
+    if(showFeatured) $("trendingGrid").innerHTML=seed.filter(p=>p.trending).slice(0,6).map(cardMarkup).join("");
     if(showFeatured) $("featuredGrid").innerHTML=seed.filter(p=>p.featured).slice(0,3).map(featuredMarkup).join("");
     document.querySelectorAll("[data-view]").forEach(el=>el.classList.toggle("active",el.dataset.view===state.view));
     renderCategoryNav();
@@ -146,8 +153,9 @@
     const p=findPrompt(id);if(!p)return;
     const cat=getCategory(p.category),saved=state.favorites.has(id);
     const tags=p.tags.map(t=>'<span class="tag">#'+escapeHTML(t)+'</span>').join("");
+    const sourceLink=p.trending && typeof p.sourceUrl==="string" && /^https:\/\/(www\.reddit\.com|github\.com)\//.test(p.sourceUrl) ? '<p class="prompt-source">🔎 Chủ đề tham khảo: <a href="'+escapeHTML(p.sourceUrl)+'" target="_blank" rel="noopener noreferrer">'+escapeHTML(p.sourceName||"Cộng đồng AI")+' ↗</a><span>Prompt đã được biên soạn lại, không sao chép nguyên văn.</span></p>' : "";
     $("detailContent").innerHTML='<div class="detail-main"><div class="detail-eyebrow"><span class="detail-emoji">'+escapeHTML(cat.icon)+'</span>'+escapeHTML(cat.name)+' <span>·</span> '+escapeHTML(p.model)+'<button class="dialog-x" type="button" data-close="detail" style="margin-left:auto" aria-label="Đóng">×</button></div>' +
-      '<h2 id="detailTitle">'+escapeHTML(p.title)+'</h2><p class="detail-desc">'+escapeHTML(p.summary)+'</p><div class="detail-tags">'+tags+'</div>' +
+      '<h2 id="detailTitle">'+escapeHTML(p.title)+'</h2><p class="detail-desc">'+escapeHTML(p.summary)+'</p>'+sourceLink+'<div class="detail-tags">'+tags+'</div>' +
       '<div class="detail-code-head"><span>NỘI DUNG PROMPT</span><span style="color:var(--muted);font-size:10px">'+p.content.length+' ký tự</span></div><pre class="prompt-text" id="detailPromptText"></pre>' +
       '<div class="detail-actions"><button class="button button-primary" type="button" data-copy="'+escapeHTML(id)+'">⧉ Sao chép prompt</button><button class="button button-outline" type="button" data-save="'+escapeHTML(id)+'">'+(saved?'♥ Đã lưu':'♡ Lưu prompt')+'</button>' +
       (p.isCustom?'<button class="button button-outline" type="button" data-edit="'+escapeHTML(id)+'">✎ Sửa</button><button class="button button-outline" type="button" data-delete="'+escapeHTML(id)+'">Xóa</button>'+(window.PromptHubCommunity?.signedIn&&(!p.status||p.status==='private'||p.status==='rejected')?'<button class="button button-primary" type="button" data-contribute="'+escapeHTML(id)+'">↗ Đóng góp công khai</button>':'')+(p.status?'<span class="review-status">'+escapeHTML(({private:'Riêng tư',pending:'Chờ duyệt',approved:'Đã duyệt',rejected:'Bị từ chối'}[p.status]||p.status))+'</span>':''):'')+
@@ -237,6 +245,7 @@
     if(view){navigate(view.dataset.view);return;}
     const category=event.target.closest("[data-category]");
     if(category){navigate("all",category.dataset.category);return;}
+    if(event.target.closest("a[href]"))return;
     const card=event.target.closest("[data-open]");
     if(card)openDetail(card.dataset.open);
   }
@@ -248,14 +257,16 @@
       if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();closeDialog($("detailDialog"));closeDialog($("editorDialog"));$("searchInput").focus();$("searchInput").select();}
       if((e.key==="Enter"||e.key===" ")&&e.target instanceof Element&&e.target.matches("[data-open]")){e.preventDefault();openDetail(e.target.dataset.open);}
     });
-    $("searchInput").addEventListener("input",e=>{state.query=e.target.value;render();});
-    $("sortSelect").addEventListener("change",e=>{state.sort=e.target.value;render();});
+    $("searchInput").addEventListener("input",e=>{state.query=e.target.value;state.visibleLimit=24;render();});
+    $("sortSelect").addEventListener("change",e=>{state.sort=e.target.value;state.visibleLimit=24;render();});
     $("themeToggle").addEventListener("click",()=>{state.dark=!state.dark;write(KEYS.theme,state.dark);updateTheme();});
     $("sidebarToggle").addEventListener("click",()=>$("appShell").classList.toggle("sidebar-open"));
     $("mobileScrim").addEventListener("click",closeSidebar);
     ["topCreate","sidebarCreate","heroCreate","bottomCreate","emptyCreate"].forEach(id=>$(id).addEventListener("click",()=>openEditor()));
     $("exploreBtn").addEventListener("click",()=>navigate("all"));
     $("viewFeatured").addEventListener("click",()=>navigate("featured"));
+    $("viewTrending").addEventListener("click",()=>navigate("trending"));
+    $("loadMoreBtn").addEventListener("click",()=>{state.visibleLimit+=24;render();});
     $("clearFilters").addEventListener("click",()=>{state.query="";$("searchInput").value="";navigate("all");});
     $("closeEditor").addEventListener("click",()=>closeDialog($("editorDialog")));
     $("cancelEditor").addEventListener("click",()=>closeDialog($("editorDialog")));

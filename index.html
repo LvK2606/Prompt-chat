@@ -15,7 +15,12 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./mobile.css">
+  <link rel="stylesheet" href="./trending.css">
   <script src="./prompts.js" defer></script>
+  <script src="./trending-prompts-1.js" defer></script>
+  <script src="./trending-prompts-2.js" defer></script>
+  <script src="./trending-prompts-3.js" defer></script>
+  <script src="./trending-prompts-4.js" defer></script>
   <script src="./community.js" defer></script>
   <script src="./app.js" defer></script>
 </head>
@@ -32,6 +37,7 @@
         <nav aria-label="Điều hướng chính" id="primaryNav">
           <button class="side-item active" data-view="all"><span class="side-icon">◫</span>Khám phá<span class="side-item-arrow">›</span></button>
           <button class="side-item" data-view="featured"><span class="side-icon">✦</span>Nổi bật</button>
+          <button class="side-item" data-view="trending"><span class="side-icon">🔥</span>Xu hướng cộng đồng<span class="nav-count" id="trendingCount">64</span></button>
           <button class="side-item" data-view="favorites"><span class="side-icon">♡</span>Đã lưu<span class="nav-count" id="favoriteCount">0</span></button>
           <button class="side-item" data-view="mine"><span class="side-icon">▤</span>Prompt của tôi</button>
         </nav>
@@ -59,7 +65,7 @@
             <h1>Ý tưởng hay bắt đầu<br>từ một <em>prompt tốt.</em></h1>
             <p>Khám phá, lưu và chia sẻ prompt AI chất lượng để học nhanh hơn, làm việc hiệu quả hơn và sáng tạo mỗi ngày.</p>
             <div class="hero-actions"><button class="button button-white" id="exploreBtn">Khám phá ngay <span aria-hidden="true">↗</span></button><button class="hero-text-link" id="heroCreate">Tạo prompt riêng <span>→</span></button></div>
-            <div class="hero-proof"><div class="proof-avatars"><span>✍</span><span>⌘</span><span>✦</span></div><div><strong id="heroPromptCount">36+ prompt</strong><small>Cho mọi ý tưởng của bạn</small></div></div>
+            <div class="hero-proof"><div class="proof-avatars"><span>✍</span><span>⌘</span><span>✦</span></div><div><strong id="heroPromptCount">100+ prompt</strong><small>Cho mọi ý tưởng của bạn</small></div></div>
           </div>
           <div class="hero-visual" aria-hidden="true">
             <div class="orb orb-one"></div><div class="orb orb-two"></div>
@@ -69,18 +75,19 @@
           </div>
         </section>
 
-        <section class="stats-strip" aria-label="Thống kê"><div class="stat"><span class="stat-icon violet">✦</span><div><strong id="statPrompts">36+</strong><small>Prompt tuyển chọn</small></div></div><div class="stat"><span class="stat-icon orange">▦</span><div><strong id="statCategories">9</strong><small>Lĩnh vực đa dạng</small></div></div><div class="stat"><span class="stat-icon green">⚡</span><div><strong>1 click</strong><small>Sao chép tức thì</small></div></div><div class="stat"><span class="stat-icon pink">♡</span><div><strong id="statSaved">0</strong><small>Prompt đã lưu</small></div></div></section>
+        <section class="stats-strip" aria-label="Thống kê"><div class="stat"><span class="stat-icon violet">✦</span><div><strong id="statPrompts">100+</strong><small>Prompt tuyển chọn</small></div></div><div class="stat"><span class="stat-icon orange">▦</span><div><strong id="statCategories">9</strong><small>Lĩnh vực đa dạng</small></div></div><div class="stat"><span class="stat-icon green">⚡</span><div><strong>1 click</strong><small>Sao chép tức thì</small></div></div><div class="stat"><span class="stat-icon pink">♡</span><div><strong id="statSaved">0</strong><small>Prompt đã lưu</small></div></div></section>
 
         <section class="explore-section" id="explore">
           <div class="section-intro"><div><span class="section-overline">DISCOVER YOUR NEXT IDEA</span><h2>Khám phá thư viện <span class="heading-flower">✳</span></h2><p>Chọn đúng công cụ, tìm đúng câu lệnh, tạo nên kết quả khác biệt.</p></div><button class="text-action" id="exportBtn" title="Xuất prompt tùy chỉnh và danh sách yêu thích">↗ Sao lưu dữ liệu</button></div>
           <div class="search-panel">
             <div class="search-input-wrap"><span class="search-glyph" aria-hidden="true">⌕</span><label for="searchInput" class="sr-only">Tìm kiếm prompt</label><input type="search" id="searchInput" placeholder="Tìm kiếm prompt, từ khóa, danh mục..." autocomplete="off"><kbd class="search-shortcut">Ctrl K</kbd></div>
-            <label class="sort-wrap" for="sortSelect"><span>↕</span><select id="sortSelect"><option value="popular">Phổ biến nhất</option><option value="latest">Mới nhất</option><option value="az">Tên A – Z</option></select></label>
+            <label class="sort-wrap" for="sortSelect"><span>↕</span><select id="sortSelect"><option value="popular">Gợi ý biên tập</option><option value="latest">Mới nhất</option><option value="az">Tên A – Z</option></select></label>
             <button class="button button-outline import-btn" id="importBtn" title="Nhập bản sao lưu JSON">⇧ <span>Nhập JSON</span></button><input id="importFile" type="file" accept=".json,application/json" hidden>
           </div>
           <div class="chip-row" id="quickFilters" aria-label="Lọc nhanh theo danh mục"></div>
           <section class="featured-section" id="featuredSection"><div class="subsection-header"><div><span class="little-spark">✦</span><h3>Được yêu thích</h3><span class="subtle-pill">EDITOR'S PICKS</span></div><button class="text-action" id="viewFeatured">Xem tất cả →</button></div><div class="featured-grid" id="featuredGrid"></div></section>
-          <section class="library-section" id="librarySection"><div class="subsection-header library-title-row"><div><span class="little-spark">◈</span><h3 id="libraryTitle">Tất cả prompt</h3><span class="result-pill" id="resultCount">0 prompt</span></div><button class="text-action" id="clearFilters" hidden>Xóa bộ lọc ×</button></div><div class="prompt-grid" id="promptGrid"></div><div class="empty-state" id="emptyState" hidden><div class="empty-icon">⌕</div><h3>Chưa tìm thấy prompt phù hợp</h3><p>Thử từ khóa hoặc danh mục khác, hoặc tạo prompt của riêng bạn.</p><button class="button button-primary" id="emptyCreate">＋ Tạo prompt</button></div></section>
+          <section class="trending-section" id="trendingSection"><div class="subsection-header"><div><span class="little-spark">🔥</span><h3>Prompt xu hướng cộng đồng</h3><span class="subtle-pill">MẪU MỚI</span></div><button class="text-action" id="viewTrending">Xem tất cả →</button></div><p class="trending-desc">Biên soạn lại bằng tiếng Việt từ các chủ đề được chia sẻ trên Reddit và GitHub. Nhấn vào prompt để xem nguồn ý tưởng.</p><div class="trending-grid" id="trendingGrid"></div></section>
+          <section class="library-section" id="librarySection"><div class="subsection-header library-title-row"><div><span class="little-spark">◈</span><h3 id="libraryTitle">Tất cả prompt</h3><span class="result-pill" id="resultCount">0 prompt</span></div><button class="text-action" id="clearFilters" hidden>Xóa bộ lọc ×</button></div><div class="prompt-grid" id="promptGrid"></div><button class="button button-outline load-more" id="loadMoreBtn" type="button" hidden>Xem thêm prompt</button><div class="empty-state" id="emptyState" hidden><div class="empty-icon">⌕</div><h3>Chưa tìm thấy prompt phù hợp</h3><p>Thử từ khóa hoặc danh mục khác, hoặc tạo prompt của riêng bạn.</p><button class="button button-primary" id="emptyCreate">＋ Tạo prompt</button></div></section>
         </section>
         <section class="closing-cta"><div><span>✦ ĐẾN LƯỢT BẠN</span><h2>Một thư viện nhỏ. <em>Vô vàn khả năng.</em></h2><p>Thêm prompt riêng, lưu những gì bạn yêu thích và biến AI thành trợ lý thực thụ.</p></div><button class="button button-white" id="bottomCreate">Bắt đầu sáng tạo ↗</button></section>
         <footer class="footer"><span>© 2026 PromptHub. Được tạo với sự tò mò ✦</span><span>Prompt công khai được tuyển chọn · Prompt bạn thêm được lưu trên trình duyệt này.</span></footer>
