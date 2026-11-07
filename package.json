@@ -8,5 +8,11 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "scripts": {
+    "test:responsive": "playwright test tests/responsive.spec.cjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
   }
 }
