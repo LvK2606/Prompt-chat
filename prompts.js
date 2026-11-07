@@ -52,6 +52,12 @@ window.PROMPT_CATEGORIES = [
     "name": "AI nâng cao",
     "icon": "✳",
     "color": "pink"
+  },
+  {
+    "id": "vibe",
+    "name": "Vibe Coding",
+    "icon": "🚀",
+    "color": "blue"
   }
 ];
 window.PROMPT_SEED = [
