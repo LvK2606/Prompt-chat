@@ -213,7 +213,7 @@
       state.custom=[...merged.values()].slice(0,500);
       const validIDs=new Set(seed.concat(state.custom).map(x=>x.id));
       state.favorites=new Set([...state.favorites,...parsed.favorites.filter(x=>typeof x==="string"&&validIDs.has(x))]);
-      write(KEYS.custom,state.custom);write(KEYS.favorites,[...state.favorites]);render();
+      if(window.PromptHubCommunity?.signedIn){await window.PromptHubCommunity.importCloud(state.custom,[...state.favorites]);}else{write(KEYS.custom,state.custom);write(KEYS.favorites,[...state.favorites]);render();}
       toast("Đã nhập bản sao lưu thành công!");
     }catch(_){toast("Không thể đọc file. Chỉ chấp nhận bản sao lưu từ PromptHub.",true);}
     finally{$("importFile").value="";}
