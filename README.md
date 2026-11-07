@@ -32,9 +32,9 @@ Chỉnh mảng `window.PROMPT_SEED` trong `prompts.js`. Mỗi mục cần các t
 ## Dữ liệu và giới hạn hiện tại
 
 - 36 prompt là **bộ prompt tuyển chọn ban đầu**, không phải toàn bộ prompt có trên Internet.
-- Prompt người dùng tạo và danh sách yêu thích được lưu vào **localStorage trên chính trình duyệt hiện tại**, không tự đồng bộ qua điện thoại/thiết bị khác.
-- File JSON sao lưu cho phép mang dữ liệu giữa các trình duyệt; nên giữ file riêng tư nếu chứa prompt nhạy cảm.
-- Website hiện không có tài khoản, database, duyệt nội dung do cộng đồng gửi hay chức năng đồng bộ nhiều người dùng. Muốn mở thành nền tảng cộng đồng cần thêm backend, auth và kiểm duyệt.
+- Khách chưa đăng nhập lưu prompt riêng và yêu thích vào `localStorage`; tài khoản đăng nhập dùng **Neon Auth + PostgreSQL** để đồng bộ giữa thiết bị.
+- File JSON sao lưu hỗ trợ nhập/xuất dữ liệu; không gửi tệp chứa thông tin nhạy cảm cho người khác.
+- Prompt cộng đồng phải được duyệt trước khi công khai. Quản trị viên có bảng điều khiển riêng tại `/admin.html`.
 
 ## Triển khai Vercel
 
@@ -133,3 +133,44 @@ ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
 - Kết nối tài khoản đã đăng nhập: API cho phép favorite `tem-###`; khi người dùng tự tạo hoặc gửi prompt duyệt, danh mục `temple` hợp lệ.
 - Kiểm thử `npm run test:responsive` gồm `tests/online-temple.spec.cjs`. Không có việc hệ thống PromptHub điều khiển game hay xây game mới: đây là thư viện prompt.
 
+
+## PromptHub Admin Console (v3)
+
+**Trang quản trị:** [https://prompt-chat.vercel.app/admin.html](https://prompt-chat.vercel.app/admin.html)
+
+Cần đăng nhập **trước tại website chính**. Không có tài khoản quản trị mặc định hoặc mật khẩu hardcode trong source. Vai trò được cấp trong bảng `community_roles` ở Neon, tài khoản đăng nhập được quản lý bằng Neon Auth. Mọi API tại `/api/admin` đều kiểm tra lại session, role và trạng thái tạm khóa ở phía máy chủ. Truy cập URL `/admin.html` không tự cấp quyền; người chưa đăng nhập hoặc thiếu quyền chỉ thấy trang xác minh.
+
+### Chức năng đã triển khai
+
+- **Tổng quan:** số người dùng, prompt được duyệt/chờ duyệt/riêng tư, báo cáo chưa xử lý, bookmark, biểu đồ prompt mới 14 ngày, thống kê danh mục và các thao tác gần nhất. Số liệu chỉ dựa trên database; **không** phải lượng truy cập thực tế Google Analytics/Vercel.
+- **Duyệt đóng góp:** đọc toàn bộ nội dung trước khi duyệt hoặc từ chối và ghi lý do; moderator và admin đều được xử lý.
+- **Quản lý prompt cộng đồng:** tìm kiếm, lọc theo trạng thái, tạo mới, sửa, công khai/ẩn, đánh dấu nổi bật, chuyển vào thùng rác (soft delete), khôi phục, xuất bản sao lưu JSON.
+- **Prompt hệ thống:** tìm kiếm 156 bản mẫu, sửa dữ liệu, đánh dấu nổi bật, ẩn/hiện và khôi phục về phiên bản gốc. Dùng bảng `community_seed_overrides`, không sửa source prompt tại GitHub. Nút chỉnh sửa chỉ admin có thể dùng.
+- **Quản lý người dùng:** xem tài khoản đăng ký, cấp hoặc thu hồi role `member`, `moderator`, `admin`, tạm khóa và mở lại quyền tương tác cộng đồng. Không cho đổi quyền hoặc khóa chính tài khoản đang thao tác.
+- **Báo cáo vi phạm:** thành viên đăng nhập báo cáo nội dung trong hộp thoại chi tiết prompt; moderator/admin xác minh và đánh dấu đã xử lý hoặc không vi phạm. Mỗi user có giới hạn 10 báo cáo/ngày và không thể báo cáo trùng một prompt.
+- **Nhật ký quản trị:** ghi thao tác vào `community_audit`, thể hiện người xử lý, đối tượng và ngày giờ.
+- **Cài đặt:** thông báo trên trang chủ và công tắc bật/tắt nhận đóng góp mới, được kiểm tra trực tiếp trong API server-side.
+- **Responsive:** menu riêng trên mobile, bảng cuộn ngang nội bộ, hộp thoại có xác nhận và lý do cho các hành động nhạy cảm.
+
+### Phân quyền
+
+| Thao tác | Khách | Thành viên | Moderator | Admin |
+| --- | --- | --- | --- | --- |
+| Xem prompt công khai | ✓ | ✓ | ✓ | ✓ |
+| Lưu/đóng góp/báo cáo | — | ✓ | ✓ | ✓ |
+| Duyệt prompt, giải quyết báo cáo | — | — | ✓ | ✓ |
+| Xem dashboard, đọc prompt chờ duyệt | — | — | ✓ | ✓ |
+| Quản lý người dùng và phân vai | — | — | — | ✓ |
+| Chỉnh sửa/ẩn prompt hệ thống | — | — | — | ✓ |
+| CRUD toàn thư viện, cấu hình, xuất dữ liệu, xem audit | — | — | — | ✓ |
+
+Moderator chỉ được đọc prompt công khai/chờ duyệt/bị từ chối; **không được xem nháp riêng tư hoặc thùng rác của thành viên**. Người bị tạm khóa không thể dùng API tương tác; vẫn có thể truy cập trang công khai đã phổ biến.
+
+### Data migrations & QA
+
+- Bảng mới: `community_seed_overrides`, `community_user_status`, `community_reports`, `community_settings`; thêm cột `community_prompts.deleted_at`.
+- Các thao tác quan trọng của admin được ghi vào `community_audit`.
+- Tệp: `api/admin.js`, `admin.html`, `admin.css`, `admin.js`.
+- Chạy `npm install && npx playwright install chromium && npm run test:responsive` để chạy cả test giao diện và test bảo vệ quyền ở API mock. Test không cần dùng tài khoản admin thật.
+
+**Giới hạn:** chưa có công cụ thay đổi mật khẩu/đặt lại email của tài khoản Neon Auth từ trang admin; không thể xem mật khẩu người dùng. Email gửi thông báo, tính phí, phân tích pageviews, xuất hàng triệu bản ghi hoặc tự động lọc bằng AI chưa được tích hợp. Xuất JSON hiện giới hạn 2.000 prompt cộng đồng. Để vận hành lâu dài cần theo dõi logs, sao lưu database trên Neon và thiết lập email khôi phục thực tế.

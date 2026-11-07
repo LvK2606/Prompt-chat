@@ -1,6 +1,6 @@
 (function client(){
 "use strict";
-const S={user:null,role:null,hooks:null,queue:[]},$=id=>document.getElementById(id),escape=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const S={user:null,role:null,hooks:null,queue:[],submissionsOpen:true,suspended:false},$=id=>document.getElementById(id),escape=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 async function api(route,body){const r=await fetch("/api/community?route="+route,{method:body?"POST":"GET",headers:body?{"Content-Type":"application/json"}:{},body:body?JSON.stringify(body):undefined});const x=await r.json();if(!r.ok)throw Error(x.error||"Yêu cầu không thành công.");return x}
 async function auth(route,data){const r=await fetch("/api/auth/"+route,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});const x=await r.json().catch(()=>({}));if(!r.ok)throw Error(x.message||"Xác thực thất bại.");return x}
 function init(hooks){
@@ -10,6 +10,12 @@ const panel=document.createElement("section");panel.id="moderationPanel";panel.c
 const dlg=document.createElement("dialog");dlg.id="accountDialog";dlg.className="dialog account-dialog";
 dlg.innerHTML='<div class="dialog-head"><div><span class="section-overline">PROMPTHUB COMMUNITY</span><h2 id="accountTitle">Đăng nhập</h2><p id="accountInfo">Lưu và đồng bộ prompt trên các thiết bị.</p></div><button type="button" class="dialog-x" id="accountClose">×</button></div><form id="accountForm" class="editor-form"><label id="accountNameRow" hidden>Họ tên <input id="accountName" maxlength="80" autocomplete="name"></label><label>Email<input id="accountEmail" type="email" required autocomplete="email"></label><label>Mật khẩu<input id="accountPassword" type="password" minlength="8" required autocomplete="current-password"></label><p id="accountError" class="auth-error" role="alert"></p><div class="form-actions"><button type="button" class="button button-outline" id="accountSwitch">Đăng ký</button><button type="submit" class="button button-primary" id="accountSubmit">Đăng nhập</button></div></form><div id="accountProfile" class="profile-actions" hidden><p id="profileText"></p><button type="button" class="button button-outline" id="accountLogout">Đăng xuất</button></div>';
 document.body.appendChild(dlg);
+const notice=document.createElement("div");notice.id="communitySiteNotice";notice.className="community-site-notice";notice.hidden=true;notice.setAttribute("role","status");document.querySelector(".main-content").prepend(notice);
+const reportDlg=document.createElement("dialog");reportDlg.id="reportDialog";reportDlg.className="dialog account-dialog";
+reportDlg.innerHTML='<div class="dialog-head"><div><span class="section-overline">AN TOÀN CỘNG ĐỒNG</span><h2>Báo cáo prompt</h2><p>Giúp quản trị viên xem xét nội dung không phù hợp.</p></div><button type="button" class="dialog-x" id="closeReport" aria-label="Đóng">×</button></div><form class="editor-form" id="reportForm"><input type="hidden" id="reportPromptId"><label>Lý do <select id="reportReason" required><option value="spam">Spam/quảng cáo</option><option value="inappropriate">Nội dung không phù hợp</option><option value="misleading">Sai lệch/gây hiểu nhầm</option><option value="copyright">Bản quyền</option><option value="other">Khác</option></select></label><label>Mô tả thêm (không bắt buộc)<textarea rows="3" maxlength="500" id="reportDetails" placeholder="Nêu vấn đề cụ thể…"></textarea></label><div class="form-actions"><button type="button" class="button button-outline" id="cancelReport">Hủy</button><button class="button button-primary" type="submit" id="sendReport">Gửi báo cáo</button></div><p id="reportError" role="alert" class="auth-error"></p></form>';
+document.body.append(reportDlg);
+$("closeReport").addEventListener("click",()=>reportDlg.close());$("cancelReport").addEventListener("click",()=>reportDlg.close());$("reportForm").addEventListener("submit",submitReport);
+reportDlg.addEventListener("click",e=>{if(e.target===reportDlg)reportDlg.close()});
 btn.addEventListener("click",()=>showAccount());$("accountClose").addEventListener("click",()=>dlg.close());$("accountSwitch").addEventListener("click",()=>showAccount($("accountTitle").textContent!=="Đăng ký"));$("accountLogout").addEventListener("click",logout);$("accountForm").addEventListener("submit",submitAccount);
 dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close()});
 const f=document.querySelector(".footer span:last-child");if(f)f.textContent="Prompt công khai được kiểm duyệt · Đăng nhập để đồng bộ giữa các thiết bị.";
@@ -30,16 +36,16 @@ async function logout(){
 try{await auth("sign-out",{})}catch(e){console.warn(e)}
 S.user=null;S.role=null;$("accountDialog").close();S.hooks.state.custom=S.hooks.readLocal();S.hooks.state.favorites=new Set(S.hooks.readFavorites());await refresh();S.hooks.toast("Bạn đã đăng xuất.");
 }
-async function refreshPublic(){try{const x=await api("public");S.hooks.state.shared=Array.isArray(x.prompts)?x.prompts:[]}catch(e){console.warn("Public API:",e.message)}S.hooks.render()}
+async function refreshPublic(){try{const x=await api("public");S.hooks.state.shared=Array.isArray(x.prompts)?x.prompts:[];S.hooks.applySeedOverrides?.(x.seedOverrides||[]);S.submissionsOpen=x.settings?.submissionsOpen!==false;const banner=$("communitySiteNotice");const message=typeof x.settings?.siteNotice==="string"?x.settings.siteNotice.trim():"";banner.textContent=message?"📢 "+message:"";banner.hidden=!message}catch(e){console.warn("Public API:",e.message)}S.hooks.render()}
 async function refresh(){
-try{const p=await api("profile");S.user=p.user;S.role=p.role}catch(e){S.user=null;S.role=null}
+try{const p=await api("profile");S.user=p.user;S.role=p.role;S.suspended=p.suspended===true;if(S.suspended)S.hooks.toast("Tài khoản đang tạm khóa: "+(p.suspensionReason||"Liên hệ quản trị viên."),true)}catch(e){S.user=null;S.role=null;S.suspended=false}
 if(S.user){
 const key="prompthub_migrated_"+S.user.id;
 if(!localStorage.getItem(key)){try{await api("import",{prompts:S.hooks.readLocal(),favorites:S.hooks.readFavorites()});localStorage.setItem(key,"true")}catch(e){S.hooks.toast("Không nhập được dữ liệu cũ: "+e.message,true)}}
 try{const x=await api("mine");S.hooks.state.custom=x.prompts||[];S.hooks.state.favorites=new Set(x.favorites||[])}catch(e){S.hooks.toast("Không đồng bộ được: "+e.message,true)}
 }else{S.hooks.state.custom=S.hooks.readLocal();S.hooks.state.favorites=new Set(S.hooks.readFavorites())}
 $("accountBtn").textContent=S.user?(S.user.name||"Tài khoản"):"Đăng nhập";
-let b=$("moderationBtn");if(["admin","moderator"].includes(S.role)){if(!b){b=document.createElement("button");b.id="moderationBtn";b.className="button button-outline";b.textContent="Quản trị";document.querySelector(".topbar-end").prepend(b);b.addEventListener("click",openQueue)}b.hidden=false}else if(b)b.hidden=true;
+let b=$("moderationBtn"),side=$("sidebarAdminLink");if(["admin","moderator"].includes(S.role)&&!S.suspended){if(!b){b=document.createElement("button");b.id="moderationBtn";b.className="button button-outline";b.textContent="Quản trị";document.querySelector(".topbar-end").prepend(b);b.addEventListener("click",()=>{location.href="/admin.html"})}b.hidden=false;if(!side){side=document.createElement("a");side.id="sidebarAdminLink";side.href="/admin.html";side.className="side-item";side.innerHTML='<span class="side-icon">⚙</span> Trang quản trị';$("primaryNav").append(side)}side.hidden=false}else {if(b)b.hidden=true;if(side)side.hidden=true}
 await refreshPublic();
 }
 async function openQueue(){
@@ -50,6 +56,8 @@ async function importCloud(prompts,favorites){if(!S.user)return false;await api(
 async function save(p){const result=await api("save",p);await refresh();return result}
 async function remove(id){await api("remove",{id});await refresh()}
 async function favorite(id,saved){if(!S.user)return;try{await api("favorite",{id,saved})}catch(e){S.hooks.toast(e.message,true);await refresh()}}
-async function contribute(id){if(!S.user){showAccount();return}try{await api("submit",{id});await refresh();S.hooks.toast("Đã gửi prompt để quản trị viên xét duyệt.")}catch(e){S.hooks.toast(e.message,true)}}
-window.PromptHubCommunity={init,save,remove,favorite,contribute,importCloud,get signedIn(){return !!S.user},get user(){return S.user},get role(){return S.role}};
+async function contribute(id){if(!S.user){showAccount();return}if(S.suspended){S.hooks.toast("Tài khoản bị tạm khóa.",true);return}if(!S.submissionsOpen){S.hooks.toast("Website đang tạm ngừng nhận prompt đóng góp.",true);return}try{await api("submit",{id});await refresh();S.hooks.toast("Đã gửi prompt để quản trị viên xét duyệt.")}catch(e){S.hooks.toast(e.message,true)}}
+async function report(id){if(!S.user){S.hooks.toast("Vui lòng đăng nhập để gửi báo cáo.");showAccount();return}if(S.suspended){S.hooks.toast("Tài khoản bị tạm khóa.",true);return}$("reportPromptId").value=id;$("reportDetails").value="";$("reportReason").value="spam";$("reportError").textContent="";$("reportDialog").showModal();}
+async function submitReport(e){e.preventDefault();const btn=$("sendReport");btn.disabled=true;$("reportError").textContent="";try{await api("report",{id:$("reportPromptId").value,reason:$("reportReason").value,details:$("reportDetails").value.trim()});$("reportDialog").close();S.hooks.toast("Đã gửi báo cáo tới quản trị viên.");}catch(e){$("reportError").textContent=e.message}finally{btn.disabled=false}}
+window.PromptHubCommunity={init,save,remove,favorite,contribute,report,importCloud,get signedIn(){return !!S.user},get user(){return S.user},get role(){return S.role},get submissionsOpen(){return S.submissionsOpen}};
 })();

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f7f7fc">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="description" content="Khu vực quản trị PromptHub. Yêu cầu tài khoản được cấp quyền.">
+<title>Quản trị · PromptHub</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin.css">
+<script src="/prompts.js" defer></script>
+<script src="/trending-prompts-1.js" defer></script>
+<script src="/trending-prompts-2.js" defer></script>
+<script src="/trending-prompts-3.js" defer></script>
+<script src="/trending-prompts-4.js" defer></script>
+<script src="/vibe-facebook-prompts-1.js" defer></script>
+<script src="/vibe-facebook-prompts-2.js" defer></script>
+<script src="/clean-tv-prompts.js" defer></script>
+<script src="/online-temple-prompts.js" defer></script>
+<script src="/admin.js" defer></script>
+</head>
+<body>
+<div id="adminGate" class="auth-gate" role="status" aria-live="polite">
+  <div class="gate-card"><span class="brand-logo">✦</span><p class="eyebrow">PROMPTHUB ADMIN</p><h1 id="gateTitle">Đang xác minh quyền truy cập…</h1><p id="gateDescription">Chỉ quản trị viên hoặc kiểm duyệt viên đã đăng nhập mới có thể mở trang này.</p>
+  <div class="gate-actions"><a class="btn btn-primary" href="/">Về trang chủ</a><button id="gateRetry" class="btn btn-soft" type="button">Kiểm tra lại</button></div></div>
+</div>
+<div id="adminLayout" class="admin-shell" hidden>
+  <aside class="admin-sidebar" id="adminSidebar" aria-label="Điều hướng quản trị">
+    <a class="brand" href="/"><span class="brand-logo">✦</span><span><strong>PromptHub</strong><small>ADMIN CONSOLE</small></span></a>
+    <div class="sidebar-label">TỔNG QUAN</div>
+    <nav id="adminNav" class="admin-nav" aria-label="Các chức năng quản trị">
+      <button type="button" data-panel="overview" class="nav-item active"><span>▦</span> Tổng quan</button>
+      <button type="button" data-panel="reviews" class="nav-item"><span>⏳</span> Duyệt đóng góp <b id="sidebarPending">0</b></button>
+      <button type="button" data-panel="prompts" class="nav-item"><span>▤</span> Quản lý prompt</button>
+      <button type="button" data-panel="curated" class="nav-item" data-admin-only><span>✦</span> Prompt hệ thống</button>
+      <button type="button" data-panel="users" class="nav-item" data-admin-only><span>♙</span> Người dùng</button>
+      <button type="button" data-panel="reports" class="nav-item"><span>⚑</span> Báo cáo vi phạm <b id="sidebarReports">0</b></button>
+      <button type="button" data-panel="audit" class="nav-item" data-admin-only><span>☷</span> Nhật ký hoạt động</button>
+      <button type="button" data-panel="settings" class="nav-item" data-admin-only><span>⚙</span> Cài đặt website</button>
+    </nav>
+    <div class="sidebar-end"><div class="sidebar-tip"><strong>Quản lý nội dung an toàn</strong><p>Tất cả thao tác được kiểm tra quyền trên máy chủ và ghi nhật ký.</p></div>
+      <a class="sidebar-link" href="/">↗ Xem trang công khai</a></div>
+  </aside>
+  <div id="adminScrim" class="admin-scrim" hidden></div>
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div class="topbar-left"><button type="button" id="navToggle" class="icon-btn" aria-label="Mở menu">☰</button><div class="topbar-title"><span>Trung tâm quản trị</span><strong id="currentTitle">Tổng quan</strong></div></div>
+      <div class="topbar-right"><span class="account-role" id="roleBadge">Kiểm tra quyền…</span><span class="account-email" id="accountEmail"></span><button type="button" id="refreshCurrent" class="icon-btn" title="Làm mới">↻</button><button type="button" id="logoutAdmin" class="btn btn-soft btn-small">Đăng xuất</button></div>
+    </header>
+    <main class="admin-content">
+      <div class="page-head"><div><p class="eyebrow" id="sectionEyebrow">DASHBOARD</p><h1 id="pageTitle">Tổng quan hệ thống</h1><p id="pageSubtitle">Theo dõi prompt, hoạt động cộng đồng và các mục cần xử lý.</p></div><span class="updated-at" id="updatedAt"></span></div>
+      <div id="adminToast" class="toast-container" role="status" aria-live="polite"></div>
+      <section id="panel-overview" data-content-panel>
+        <div class="stats-grid" id="overviewCards"></div>
+        <div class="dashboard-grid">
+          <div class="surface"><div class="surface-heading"><h2>Hoạt động 14 ngày</h2><span>Prompt mới được tạo</span></div><div class="bars" id="activityChart" aria-label="Biểu đồ prompt mới mỗi ngày"></div></div>
+          <div class="surface"><div class="surface-heading"><h2>Danh mục từ cộng đồng</h2><span>Thống kê database</span></div><div id="categoryChart" class="mini-categories"></div></div>
+        </div>
+        <div class="dashboard-grid">
+          <div class="surface"><div class="surface-heading"><h2>Trạng thái đóng góp</h2><button class="text-link" type="button" data-go="reviews">Xử lý ngay →</button></div><div id="statusSummary" class="status-grid"></div></div>
+          <div class="surface"><div class="surface-heading"><h2>Thao tác gần đây</h2><button class="text-link" type="button" data-go="audit" data-admin-only>Xem nhật ký →</button></div><div id="recentAudit" class="compact-log"></div></div>
+        </div>
+      </section>
+      <section id="panel-reviews" data-content-panel hidden>
+        <div class="surface"><div class="surface-heading"><div><h2>Đóng góp chờ duyệt</h2><p>Đọc nội dung trước khi duyệt hoặc từ chối. Không thể duyệt tự động.</p></div><button id="reloadReviews" class="btn btn-soft btn-small">Làm mới</button></div><div id="reviewList" class="review-list"></div><div id="reviewPager" class="pager"></div></div>
+      </section>
+      <section id="panel-prompts" data-content-panel hidden>
+        <div class="surface"><div class="surface-heading"><div><h2>Prompt do cộng đồng tạo</h2><p>Quản lý nội dung đã duyệt, nháp, từ chối và thùng rác.</p></div><div class="heading-actions"><button type="button" id="exportPrompts" data-admin-only class="btn btn-soft btn-small">↓ Xuất JSON</button><button type="button" id="addPrompt" data-admin-only class="btn btn-primary btn-small">+ Thêm prompt</button></div></div>
+          <div class="filter-bar"><input id="promptSearch" type="search" placeholder="Tìm theo tên, mô tả hoặc ID…" aria-label="Tìm kiếm prompt"><select id="promptStatus" aria-label="Trạng thái prompt"><option value="all">Tất cả đang dùng</option><option value="approved">Công khai</option><option value="pending">Chờ duyệt</option><option value="private">Riêng tư</option><option value="rejected">Bị từ chối</option><option value="deleted">Đã xóa</option></select><button class="btn btn-soft btn-small" id="applyPromptFilter">Lọc</button></div>
+          <div class="table-scroll"><table class="data-table"><thead><tr><th>Prompt</th><th>Danh mục</th><th>Trạng thái</th><th>Ngày tạo</th><th>Thao tác</th></tr></thead><tbody id="promptTable"></tbody></table></div><div id="promptPager" class="pager"></div></div>
+      </section>
+      <section id="panel-curated" data-content-panel hidden data-admin-only>
+        <div class="surface"><div class="surface-heading"><div><h2>156 prompt mẫu của PromptHub</h2><p>Chỉnh sửa, đưa nổi bật hoặc ẩn prompt mẫu. Dữ liệu gốc trong GitHub vẫn nguyên vẹn và có thể khôi phục.</p></div><span class="soft-tag" id="overridesCount">0 điều chỉnh</span></div>
+          <div class="filter-bar"><input id="seedSearch" type="search" placeholder="Tên, nội dung, ID prompt mẫu…" aria-label="Tìm prompt mẫu"><select id="seedCategory" aria-label="Danh mục prompt mẫu"><option value="all">Tất cả danh mục</option></select><button class="btn btn-soft btn-small" id="applySeedFilter">Lọc</button></div>
+          <div class="table-scroll"><table class="data-table"><thead><tr><th>Prompt mẫu</th><th>Danh mục</th><th>Trạng thái</th><th>Cập nhật</th><th>Thao tác</th></tr></thead><tbody id="seedTable"></tbody></table></div><div id="seedPager" class="pager"></div></div>
+      </section>
+      <section id="panel-users" data-content-panel hidden data-admin-only>
+        <div class="surface"><div class="surface-heading"><div><h2>Người dùng và phân quyền</h2><p>Cấp vai trò, khóa/mở khóa tài khoản. Không có quyền xem mật khẩu người dùng.</p></div><span class="soft-tag">Chỉ Admin</span></div><div class="filter-bar"><input id="userSearch" type="search" placeholder="Tìm email hoặc tên người dùng…" aria-label="Tìm người dùng"><button class="btn btn-soft btn-small" id="applyUserFilter">Tìm</button></div>
+          <div class="table-scroll"><table class="data-table"><thead><tr><th>Tài khoản</th><th>Vai trò</th><th>Prompt</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody id="userTable"></tbody></table></div><div id="userPager" class="pager"></div></div>
+      </section>
+      <section id="panel-reports" data-content-panel hidden>
+        <div class="surface"><div class="surface-heading"><div><h2>Báo cáo vi phạm</h2><p>Người dùng có thể báo cáo prompt sai lệch, spam, nội dung không phù hợp và bản quyền.</p></div></div><div class="filter-bar"><select id="reportStatus" aria-label="Lọc báo cáo"><option value="open">Chưa xử lý</option><option value="resolved">Đã xử lý</option><option value="dismissed">Không vi phạm</option><option value="all">Tất cả</option></select><button type="button" class="btn btn-soft btn-small" id="reloadReports">Lọc báo cáo</button></div>
+          <div id="reportList" class="review-list"></div><div id="reportPager" class="pager"></div></div>
+      </section>
+      <section id="panel-audit" data-content-panel hidden data-admin-only>
+        <div class="surface"><div class="surface-heading"><div><h2>Nhật ký quản trị</h2><p>Ghi lại người thực hiện, hành động, đối tượng và thời điểm.</p></div></div><div class="table-scroll"><table class="data-table"><thead><tr><th>Thời điểm</th><th>Quản trị viên</th><th>Hành động</th><th>Đối tượng</th><th>Ghi chú</th></tr></thead><tbody id="auditTable"></tbody></table></div><div id="auditPager" class="pager"></div></div>
+      </section>
+      <section id="panel-settings" data-content-panel hidden data-admin-only>
+        <div class="surface settings-surface"><div class="surface-heading"><div><h2>Cấu hình thư viện</h2><p>Những thay đổi có hiệu lực với các lượt truy cập mới trên website công khai.</p></div></div><form id="settingsForm" class="editor-form">
+          <label class="field"><span>Thông báo trên trang chủ</span><textarea id="siteNotice" maxlength="240" rows="3" placeholder="Thông báo nâng cấp, sự kiện cộng đồng…"></textarea><small>Tối đa 240 ký tự. Để trống nếu không muốn hiển thị.</small></label>
+          <label class="switch-field"><input type="checkbox" id="submissionsOpen" checked><span><strong>Cho phép gửi prompt đóng góp</strong><small>Nếu tắt, thành viên vẫn đọc nội dung và quản lý prompt riêng nhưng không thể gửi duyệt mới.</small></span></label>
+          <div class="form-actions"><button type="submit" class="btn btn-primary">Lưu thiết lập</button></div></form></div>
+        <div class="surface hint-panel"><h2>Bảo mật & giới hạn</h2><p>Mỗi thao tác đều xác minh phiên đăng nhập và vai trò ở API. Dữ liệu xác thực do Neon Auth quản lý; PromptHub không hiển thị hoặc trích xuất mật khẩu. Các số liệu thống kê chỉ là dữ liệu nội bộ PromptHub, không phải lượt xem website trên Vercel.</p></div>
+      </section>
+    </main>
+  </div>
+</div>
+<dialog class="admin-dialog" id="editorDialog" aria-labelledby="editorTitle">
+  <form id="editorForm" class="editor-form">
+    <div class="dialog-header"><div><p class="eyebrow">QUẢN LÝ NỘI DUNG</p><h2 id="editorTitle">Tạo prompt</h2></div><button type="button" class="icon-btn" data-close-modal="editorDialog" aria-label="Đóng">×</button></div>
+    <input id="editId" type="hidden"><input id="editMode" type="hidden" value="community">
+    <div class="editor-body"><label class="field"><span>Tiêu đề *</span><input id="editTitle" maxlength="100" required placeholder="Tên prompt"></label>
+    <label class="field"><span>Mô tả ngắn *</span><textarea id="editSummary" rows="2" maxlength="240" required></textarea></label>
+    <label class="field"><span>Nội dung prompt *</span><textarea id="editContent" rows="10" maxlength="12000" required></textarea></label>
+    <div class="two-fields"><label class="field"><span>Danh mục</span><select id="editCategory"></select></label><label class="field"><span>Mô hình AI</span><select id="editModel"><option>Mọi AI</option><option>ChatGPT</option><option>Claude</option><option>Gemini</option><option>Midjourney</option><option>Khác</option></select></label></div>
+    <label class="field"><span>Nhãn (tối đa 6, phân tách bằng dấu phẩy)</span><input id="editTags" maxlength="170"></label>
+    <div class="two-fields"><label class="field" id="editStatusWrap"><span>Trạng thái</span><select id="editStatus"><option value="approved">Công khai</option><option value="private">Riêng tư</option></select></label><label class="field"><span>Ưu tiên (0–999)</span><input id="editScore" type="number" min="0" max="999" value="0"></label></div>
+    <label class="switch-field"><input id="editFeatured" type="checkbox"><span><strong>Đưa vào danh sách nổi bật</strong><small>Chỉ có tác dụng trên prompt được công khai.</small></span></label>
+    </div><div class="dialog-actions"><button type="button" class="btn btn-soft" data-close-modal="editorDialog">Hủy</button><button class="btn btn-primary" id="saveEditor" type="submit">Lưu prompt</button></div>
+  </form>
+</dialog>
+<dialog class="admin-dialog" id="detailDialog" aria-labelledby="detailTitle">
+  <div class="dialog-header"><div><p class="eyebrow">ĐÁNH GIÁ NỘI DUNG</p><h2 id="detailTitle">Chi tiết prompt</h2></div><button type="button" class="icon-btn" data-close-modal="detailDialog" aria-label="Đóng">×</button></div>
+  <div id="detailInfo" class="detail-info"></div><pre id="detailText" class="detail-text"></pre>
+  <div class="dialog-actions" id="detailActions"><button type="button" class="btn btn-soft" data-close-modal="detailDialog">Đóng</button></div>
+</dialog>
+<dialog class="admin-dialog confirmation-dialog" id="confirmDialog" aria-labelledby="confirmTitle">
+  <div class="dialog-header"><div><p class="eyebrow">XÁC NHẬN</p><h2 id="confirmTitle">Xác nhận thao tác</h2></div><button type="button" class="icon-btn" data-close-modal="confirmDialog">×</button></div>
+  <p id="confirmMessage" class="confirm-message"></p>
+  <label class="field" id="confirmReasonWrap" hidden><span id="confirmReasonLabel">Lý do</span><textarea id="confirmReason" rows="3" maxlength="500" placeholder="Nhập lý do…"></textarea></label>
+  <div class="dialog-actions"><button type="button" class="btn btn-soft" data-close-modal="confirmDialog">Hủy</button><button type="button" class="btn btn-danger" id="confirmExecute">Xác nhận</button></div>
+</dialog>
+</body>
+</html>

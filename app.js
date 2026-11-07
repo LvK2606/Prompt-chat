@@ -3,6 +3,7 @@
   const $ = id => document.getElementById(id);
   const categories = Array.isArray(window.PROMPT_CATEGORIES) ? window.PROMPT_CATEGORIES : [];
   const seed = Array.isArray(window.PROMPT_SEED) ? window.PROMPT_SEED : [];
+  const originalSeeds = seed.map(p=>({...p,tags:[...(p.tags||[])]}));
   const CATEGORY_IDS = new Set(categories.map(c => c.id));
   const MODELS = new Set(["Mọi AI", "ChatGPT", "Claude", "Gemini", "Midjourney", "Khác"]);
   const KEYS = {custom: "prompthub_custom_v1", favorites: "prompthub_favorites_v1", theme: "prompthub_theme_v1"};
@@ -32,12 +33,29 @@
   const storedCustom = read(KEYS.custom, []);
   const storedFav = read(KEYS.favorites, []);
   const state = {
-    view:"all", category:"all", query:"", sort:"popular", shared:[], visibleLimit:24,
+    view:"all", category:"all", query:"", sort:"popular", shared:[], visibleLimit:24, hiddenSeedIds:new Set(),
     custom:(Array.isArray(storedCustom) ? storedCustom : []).slice(0,500).map(x=>normalizePrompt(x)).filter(Boolean),
     favorites:new Set((Array.isArray(storedFav) ? storedFav : []).filter(x=>typeof x === "string")),
     dark:read(KEYS.theme,false) === true
   };
-  const all = () => seed.concat(state.shared.filter(p=>!state.custom.some(c=>c.id===p.id))).concat(state.custom);
+  function applySeedOverrides(records){
+    const map=new Map((Array.isArray(records)?records:[]).filter(x=>x&&typeof x.id==="string").map(x=>[x.id,x]));
+    state.hiddenSeedIds=new Set();
+    seed.splice(0,seed.length,...originalSeeds.map(src=>{
+      const item=map.get(src.id);if(!item)return {...src,tags:[...src.tags]};
+      if(item.hidden===true)state.hiddenSeedIds.add(src.id);
+      const o=item.overrides&&typeof item.overrides==="object"&&!Array.isArray(item.overrides)?item.overrides:{};
+      const result={...src,tags:[...src.tags]};
+      for(const key of ["title","summary","content"]){if(typeof o[key]==="string"&&o[key].trim())result[key]=o[key].slice(0,key==="title"?100:key==="summary"?240:12000)}
+      if(CATEGORY_IDS.has(o.category))result.category=o.category;
+      if(MODELS.has(o.model))result.model=o.model;
+      if(Array.isArray(o.tags))result.tags=o.tags.slice(0,6).filter(x=>typeof x==="string").map(x=>x.slice(0,25));
+      if(typeof o.featured==="boolean")result.featured=o.featured;
+      if(Number.isFinite(o.score))result.score=Math.max(0,Math.min(999,o.score));
+      return result;
+    }));
+  }
+  const all = () => seed.filter(p=>!state.hiddenSeedIds.has(p.id)).concat(state.shared.filter(p=>!state.custom.some(c=>c.id===p.id))).concat(state.custom);
   const findPrompt = id => all().find(p=>p.id === id);
   const getCategory = id => categories.find(c=>c.id === id) || categories[0] || {name:"Khác",icon:"✦",color:"purple"};
   function toast(message, error = false) {
@@ -128,15 +146,15 @@
     $("vibeSection").hidden=!showFeatured;
     $("cleanTvSection").hidden=!showFeatured;
     $("onlineTempleSection").hidden=!showFeatured;
-    $("templeCount").textContent=String(seed.filter(p=>p.onlineTemple).length);
-    if(showFeatured) $("onlineTempleGrid").innerHTML=seed.filter(p=>p.onlineTemple).slice(0,6).map(cardMarkup).join("");
-    $("cleanTvCount").textContent=String(seed.filter(p=>p.cleanTv).length);
-    if(showFeatured) $("cleanTvGrid").innerHTML=seed.filter(p=>p.cleanTv).slice(0,6).map(cardMarkup).join("");
-    $("vibeCount").textContent=String(seed.filter(p=>p.facebookVibe).length);
-    if(showFeatured) $("vibeGrid").innerHTML=seed.filter(p=>p.facebookVibe).slice(0,6).map(cardMarkup).join("");
-    $("trendingCount").textContent=String(seed.filter(p=>p.trending).length);
-    if(showFeatured) $("trendingGrid").innerHTML=seed.filter(p=>p.trending).slice(0,6).map(cardMarkup).join("");
-    if(showFeatured) $("featuredGrid").innerHTML=seed.filter(p=>p.featured).slice(0,3).map(featuredMarkup).join("");
+    $("templeCount").textContent=String(seed.filter(p=>!state.hiddenSeedIds.has(p.id)&&p.onlineTemple).length);
+    if(showFeatured) $("onlineTempleGrid").innerHTML=seed.filter(p=>!state.hiddenSeedIds.has(p.id)&&p.onlineTemple).slice(0,6).map(cardMarkup).join("");
+    $("cleanTvCount").textContent=String(seed.filter(p=>!state.hiddenSeedIds.has(p.id)&&p.cleanTv).length);
+    if(showFeatured) $("cleanTvGrid").innerHTML=seed.filter(p=>!state.hiddenSeedIds.has(p.id)&&p.cleanTv).slice(0,6).map(cardMarkup).join("");
+    $("vibeCount").textContent=String(seed.filter(p=>!state.hiddenSeedIds.has(p.id)&&p.facebookVibe).length);
+    if(showFeatured) $("vibeGrid").innerHTML=seed.filter(p=>!state.hiddenSeedIds.has(p.id)&&p.facebookVibe).slice(0,6).map(cardMarkup).join("");
+    $("trendingCount").textContent=String(seed.filter(p=>!state.hiddenSeedIds.has(p.id)&&p.trending).length);
+    if(showFeatured) $("trendingGrid").innerHTML=seed.filter(p=>!state.hiddenSeedIds.has(p.id)&&p.trending).slice(0,6).map(cardMarkup).join("");
+    if(showFeatured) $("featuredGrid").innerHTML=seed.filter(p=>!state.hiddenSeedIds.has(p.id)&&p.featured).slice(0,3).map(featuredMarkup).join("");
     document.querySelectorAll("[data-view]").forEach(el=>el.classList.toggle("active",el.dataset.view===state.view));
     renderCategoryNav();
   }
@@ -172,6 +190,7 @@
       '<div class="detail-code-head"><span>NỘI DUNG PROMPT</span><span style="color:var(--muted);font-size:10px">'+p.content.length+' ký tự</span></div><pre class="prompt-text" id="detailPromptText"></pre>' +
       '<div class="detail-actions"><button class="button button-primary" type="button" data-copy="'+escapeHTML(id)+'">⧉ Sao chép prompt</button><button class="button button-outline" type="button" data-save="'+escapeHTML(id)+'">'+(saved?'♥ Đã lưu':'♡ Lưu prompt')+'</button>' +
       (p.isCustom?'<button class="button button-outline" type="button" data-edit="'+escapeHTML(id)+'">✎ Sửa</button><button class="button button-outline" type="button" data-delete="'+escapeHTML(id)+'">Xóa</button>'+(window.PromptHubCommunity?.signedIn&&(!p.status||p.status==='private'||p.status==='rejected')?'<button class="button button-primary" type="button" data-contribute="'+escapeHTML(id)+'">↗ Đóng góp công khai</button>':'')+(p.status?'<span class="review-status">'+escapeHTML(({private:'Riêng tư',pending:'Chờ duyệt',approved:'Đã duyệt',rejected:'Bị từ chối'}[p.status]||p.status))+'</span>':''):'')+
+      ((!p.isCustom||p.status==='approved')?'<button class="button button-outline" type="button" data-report="'+escapeHTML(id)+'">⚑ Báo cáo</button>':'')+
       '<button class="button button-outline" type="button" data-download="'+escapeHTML(id)+'">↓ .txt</button></div><p class="detail-footnote">Mẹo: Thay nội dung trong [DẤU NGOẶC] bằng thông tin thực tế trước khi gửi cho AI.</p></div>';
     $("detailPromptText").textContent=p.content;
     $("detailDialog").dataset.prompt=id;
@@ -247,6 +266,7 @@
     if(copyBtn){const p=findPrompt(copyBtn.dataset.copy);if(p)copy(p.content);return;}
     const saveBtn=event.target.closest("[data-save]");
     if(saveBtn){toggleFavorite(saveBtn.dataset.save);return;}
+    const reportBtn=event.target.closest("[data-report]");if(reportBtn){window.PromptHubCommunity?.report(reportBtn.dataset.report);return;}
     const contributeBtn=event.target.closest("[data-contribute]");if(contributeBtn){window.PromptHubCommunity?.contribute(contributeBtn.dataset.contribute);closeDialog($("detailDialog"));return;}
     const editBtn=event.target.closest("[data-edit]");
     if(editBtn){openEditor(editBtn.dataset.edit);return;}
@@ -290,7 +310,7 @@
     $("exportBtn").addEventListener("click",exportBackup);
     $("importBtn").addEventListener("click",()=>$("importFile").click());
     $("importFile").addEventListener("change",e=>importBackup(e.target.files?.[0]));
-    if(window.PromptHubCommunity)window.PromptHubCommunity.init({state,render,toast,readLocal:()=>{const v=read(KEYS.custom,[]);return(Array.isArray(v)?v:[]).slice(0,500).map(x=>normalizePrompt(x)).filter(Boolean)},readFavorites:()=>{const v=read(KEYS.favorites,[]);return Array.isArray(v)?v:[]}});
+    if(window.PromptHubCommunity)window.PromptHubCommunity.init({state,render,toast,applySeedOverrides,readLocal:()=>{const v=read(KEYS.custom,[]);return(Array.isArray(v)?v:[]).slice(0,500).map(x=>normalizePrompt(x)).filter(Boolean)},readFavorites:()=>{const v=read(KEYS.favorites,[]);return Array.isArray(v)?v:[]}});
     for(const id of ["detailDialog","editorDialog"]){
       $(id).addEventListener("click",e=>{if(e.target===$(id))closeDialog($(id));});
     }
