@@ -12,7 +12,7 @@ test('140 prompts across all 11 categories, including 64 prior sourced trends', 
   const data = await page.evaluate(() => ({
     total: window.PROMPT_SEED.length,
     ids: new Set(window.PROMPT_SEED.map(p => p.id)).size,
-    trends: window.PROMPT_SEED.filter(p => p.trending && !p.facebookVibe),
+    trends: window.PROMPT_SEED.filter(p => /^hot-\\d{3}$/.test(p.id)),
   }));
   expect(data.total).toBe(140);
   expect(data.ids).toBe(140);
