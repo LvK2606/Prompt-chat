@@ -3,10 +3,10 @@ const { test, expect } = require('@playwright/test');
 test('Facebook vibe catalogue contains 24 authored templates with attributable sources', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('http://127.0.0.1:4173/', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('#statPrompts')).toHaveText('140');
-  await expect(page.locator('#statCategories')).toHaveText('11');
+  await expect(page.locator('#statPrompts')).toHaveText('156');
+  await expect(page.locator('#statCategories')).toHaveText('12');
   await expect(page.locator('#vibeCount')).toHaveText('24');
-  await expect(page.locator('#trendingCount')).toHaveText('104');
+  await expect(page.locator('#trendingCount')).toHaveText('120');
   await expect(page.locator('#vibeGrid .prompt-card')).toHaveCount(6);
   const info = await page.evaluate(() => {
     const items = window.PROMPT_SEED.filter(p => p.facebookVibe);
@@ -16,7 +16,7 @@ test('Facebook vibe catalogue contains 24 authored templates with attributable s
       categoryName: window.PROMPT_CATEGORIES.find(c => c.id === 'vibe')?.name,
     };
   });
-  expect(info.unique).toBe(140);
+  expect(info.unique).toBe(156);
   expect(info.categoryName).toBe('Vibe Coding');
   expect(info.items).toHaveLength(24);
   for (const p of info.items) {
