@@ -1,0 +1,195 @@
+/* PromptHub — mobile-first corrective layer.
+   Keep desktop visual design, remove intrinsic-width overflow and put discovery first. */
+
+html, body { min-width: 0; max-width: 100%; }
+.app-shell, .workspace, .main-content { min-width: 0; max-width: 100%; }
+.topbar-start, .topbar-end, .breadcrumb { min-width: 0; }
+.topbar-start { flex: 1 1 auto; }
+.topbar-end { flex: 0 0 auto; }
+.topbar .icon-button { flex: 0 0 auto; }
+.hero-text, .section-intro > div, .stat > div, .prompt-card, .featured-card { min-width: 0; }
+.prompt-card h4, .featured-card h4, .prompt-card p, .featured-card p { overflow-wrap: anywhere; }
+.detail-main, .editor-form, .review-card { min-width: 0; overflow-wrap: anywhere; }
+input, select, textarea { max-width: 100%; }
+.dialog { max-width: calc(100vw - 24px); }
+
+@media (max-width: 900px) and (min-width: 721px) {
+  .topbar { gap: 8px; }
+  .topbar-end { gap: 8px; }
+  .top-create { display: none; }
+  .breadcrumb { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+
+@media (max-width: 720px) {
+  /* A phone header has four controlled pieces: menu, location, account, theme. */
+  .topbar {
+    height: 60px;
+    width: 100%;
+    max-width: 100%;
+    gap: 8px;
+    padding-inline: 14px;
+  }
+  .topbar-start { gap: 9px; overflow: hidden; }
+  .topbar-end { gap: 8px; }
+  .topbar .top-create { display: none !important; }
+  .topbar .topbar-note { display: none; }
+  .topbar .icon-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+  .topbar .breadcrumb {
+    display: block;
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .topbar .breadcrumb-prefix,
+  .topbar .crumb-divider { display: none; }
+  .topbar .breadcrumb strong { font-size: 12px; }
+  .topbar .account-button {
+    display: block;
+    height: 40px;
+    min-width: 0;
+    max-width: 106px;
+    padding: 0 11px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+
+  /* Remove tall landing-page filler and bring search into view sooner. */
+  .main-content { padding: 14px 14px 0; overflow: clip; }
+  .hero {
+    min-height: 0;
+    padding: 24px 22px 22px;
+    border-radius: 20px;
+    align-items: flex-start;
+  }
+  .hero-text { width: 100%; max-width: 100%; }
+  .hero-eyebrow { gap: 7px; font-size: 9px; letter-spacing: 1.15px; }
+  .eyebrow-line { width: 26px; }
+  .hero h1 {
+    margin: 12px 0 10px;
+    font-size: clamp(25px, 6.2vw, 32px);
+    letter-spacing: -1.1px;
+    line-height: 1.19;
+  }
+  .hero-text > p {
+    font-size: 12.5px;
+    line-height: 1.58;
+    max-width: 540px;
+    color: #f3edff;
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 18px;
+    margin-top: 18px;
+  }
+  .hero-actions .button {
+    height: 42px;
+    padding: 0 16px;
+    font-size: 12px;
+  }
+  .hero-text-link { font-size: 12px; padding: 8px 0; }
+  .hero-proof { margin-top: 18px; gap: 11px; }
+  .hero-proof strong { font-size: 12px; }
+  .hero-proof small { font-size: 10px; }
+  .proof-avatars span { width: 26px; height: 26px; }
+
+  .stats-strip {
+    padding: 19px 0;
+    gap: 16px 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .stat { padding: 0; gap: 10px; }
+  .stat-icon { width: 35px; height: 35px; border-radius: 10px; font-size: 17px; }
+  .stat strong { font-size: 17px; line-height: 1.2; }
+  .stat small { font-size: 10px; margin-top: 4px; line-height: 1.3; }
+
+  .explore-section { padding-top: 23px; scroll-margin-top: 74px; }
+  .section-intro h2 { margin: 7px 0; font-size: 22px; }
+  .section-overline { font-size: 9px; letter-spacing: 1.5px; }
+  .section-intro p { font-size: 12px; line-height: 1.5; }
+  .search-panel { margin-top: 15px; gap: 9px; }
+  .search-input-wrap { height: 47px; padding-inline: 14px; }
+  .search-input-wrap input { font-size: 13px; }
+  .sort-wrap { flex: 1 1 0; min-width: 0; padding: 0 12px; height: 43px; }
+  .sort-wrap select { width: 100%; max-width: 100%; min-width: 0; font-size: 12px; }
+  .import-btn { flex: 0 0 auto; height: 43px; padding-inline: 12px; }
+  .chip-row {
+    flex-wrap: nowrap;
+    gap: 9px;
+    margin: 13px -14px 0;
+    padding: 2px 14px 9px;
+    width: calc(100% + 28px);
+    max-width: calc(100% + 28px);
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .chip-row::-webkit-scrollbar { display: none; }
+  .chip { min-height: 37px; flex: 0 0 auto; white-space: nowrap; font-size: 11px; }
+  .featured-section { margin-top: 23px; }
+  .library-section { margin-top: 25px; }
+  .subsection-header { flex-wrap: wrap; row-gap: 9px; }
+  .closing-cta { margin-top: 36px; }
+  .footer { gap: 6px; }
+  .dialog { max-height: calc(100dvh - 32px); }
+  .account-dialog { width: min(460px, calc(100vw - 24px)); }
+  .toast-stack { right: 12px; left: 12px; bottom: 12px; }
+  .toast { width: fit-content; max-width: 100%; margin-left: auto; }
+  .section-intro p, .stat small, .card-category, .prompt-card > p {
+    color: #72788f;
+  }
+  body.dark .section-intro p,
+  body.dark .stat small,
+  body.dark .card-category,
+  body.dark .prompt-card > p { color: #b2b4c8; }
+}
+
+@media (max-width: 480px) {
+  .hero { padding: 23px 20px 21px; }
+  .hero h1 { font-size: clamp(24px, 6.4vw, 29px); letter-spacing: -1px; }
+  .hero-eyebrow { font-size: 8px; }
+  .hero-text > p { font-size: 12px; }
+  .stats-strip { gap: 15px 8px; }
+  .stat { gap: 8px; }
+  .stat strong { font-size: 16px; }
+  .stat small { font-size: 9.5px; }
+  .stat-icon { width: 34px; height: 34px; }
+  .featured-grid, .prompt-grid { grid-template-columns: minmax(0, 1fr); }
+  .featured-card, .prompt-card { min-width: 0; }
+  .featured-card { min-height: 165px; }
+  .prompt-card { min-height: 193px; }
+  .search-panel { align-items: stretch; }
+  .subsection-header > div { flex-wrap: wrap; }
+}
+
+@media (max-width: 360px) {
+  .topbar { padding-inline: 10px; gap: 5px; }
+  .topbar-start { gap: 6px; }
+  .topbar-end { gap: 5px; }
+  .topbar .account-button { max-width: 94px; padding-inline: 8px; }
+  .topbar .icon-button { width: 37px; height: 37px; }
+  .topbar .breadcrumb strong { font-size: 11px; }
+  .main-content { padding-inline: 12px; }
+  .hero { padding-inline: 18px; }
+  .hero h1 { font-size: 24px; }
+  .hero-actions { gap: 9px 12px; }
+  .hero-actions .button { padding-inline: 12px; font-size: 11px; }
+  .hero-text-link { font-size: 11px; }
+  .chip-row { margin-inline: -12px; width: calc(100% + 24px); max-width: calc(100% + 24px); padding-inline: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip-row { scroll-behavior: auto; }
+}
