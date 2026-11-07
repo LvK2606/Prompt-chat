@@ -25,6 +25,10 @@ test('Clean TV collection adds 16 sourced prompts without replacing original 124
     expect(p.sourceName.length).toBeGreaterThan(10);
     expect(p.sourcePlatform.length).toBeGreaterThan(10);
     expect(p.content).toContain('Không root');
+    expect(p.content).toContain('THÔNG TIN CỦA TÔI');
+    expect(p.content).toContain('YÊU CẦU\n1.');
+    expect(p.content).toContain('\n5.');
+    expect(['Claude','ChatGPT']).toContain(p.model);
   }
 });
 
