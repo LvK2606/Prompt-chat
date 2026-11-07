@@ -4,7 +4,7 @@ const allowed=new Set(["sign-up/email","sign-in/email","sign-out","get-session",
 const path=String(req.query?.path||"").replace(/^\/+|\/+$/g,"");
 if(!allowed.has(path))return res.status(404).json({error:"Endpoint không tồn tại."});
 if(req.method!=="POST"&&!(req.method==="GET"&&["get-session","verify-email"].includes(path)))return res.status(405).json({error:"Phương thức không hỗ trợ."});
-if(req.method==="POST"&&req.headers.origin&&!["https://prompt-chat.vercel.app","http://localhost:3000","http://localhost:4173"].includes(req.headers.origin))return res.status(403).json({error:"Nguồn không hợp lệ."});
+if(req.method==="POST"&&req.headers.origin&&!([`https://${req.headers.host}`,"http://localhost:3000","http://localhost:4173"].includes(req.headers.origin)))return res.status(403).json({error:"Nguồn không hợp lệ."});
 try{
 const headers={"accept":"application/json","content-type":"application/json",origin:"https://prompt-chat.vercel.app"};
 if(req.headers.cookie)headers.cookie=req.headers.cookie;
