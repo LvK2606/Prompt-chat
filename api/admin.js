@@ -50,7 +50,7 @@ try{
    sql`SELECT status,count(*)::int AS count FROM community_prompts WHERE deleted_at IS NULL GROUP BY status`,
    sql`SELECT count(*)::int AS count FROM community_favorites`,
    sql`SELECT status,count(*)::int AS count FROM community_reports GROUP BY status`,
-   sql`SELECT count(*)::int AS changed,count(*) FILTER(WHERE hidden=true)::int AS hidden FROM community_seed_overrides`,
+   sql`SELECT count(*) FILTER(WHERE hidden=true OR overrides <> '{}'::jsonb)::int AS changed,count(*) FILTER(WHERE hidden=true)::int AS hidden FROM community_seed_overrides`,
    sql`SELECT id,actor_id,prompt_id,action,note,created_at FROM community_audit ORDER BY created_at DESC LIMIT 8`,
    sql`SELECT category,count(*)::int AS count FROM community_prompts WHERE deleted_at IS NULL GROUP BY category ORDER BY count DESC LIMIT 12`,
    sql`SELECT created_at::date::text AS day,count(*)::int AS count FROM community_prompts WHERE deleted_at IS NULL AND created_at>=now()-interval '13 days' GROUP BY created_at::date ORDER BY day`
@@ -64,8 +64,8 @@ try{
   const term="%"+q+"%",deleted=status==="deleted",effective=status==="deleted"?"all":status;
   // Avoid dynamic SQL assembly: the two parameterized queries have the same predicates.
   const [items,count]=await Promise.all([
-   sql`SELECT p.* FROM community_prompts p WHERE (${deleted} = (p.deleted_at IS NOT NULL)) AND (${effective}='all' OR p.status=${effective}) AND (${q}='' OR p.title ILIKE ${term} OR p.summary ILIKE ${term} OR p.id ILIKE ${term}) ORDER BY p.created_at DESC LIMIT ${limit} OFFSET ${(page-1)*limit}`,
-   sql`SELECT count(*)::int AS count FROM community_prompts p WHERE (${deleted} = (p.deleted_at IS NOT NULL)) AND (${effective}='all' OR p.status=${effective}) AND (${q}='' OR p.title ILIKE ${term} OR p.summary ILIKE ${term} OR p.id ILIKE ${term})`
+   sql`SELECT p.* FROM community_prompts p WHERE (${deleted} = (p.deleted_at IS NOT NULL)) AND (${admin} OR (p.deleted_at IS NULL AND p.status IN ('approved','pending','rejected'))) AND (${effective}='all' OR p.status=${effective}) AND (${q}='' OR p.title ILIKE ${term} OR p.summary ILIKE ${term} OR p.id ILIKE ${term}) ORDER BY p.created_at DESC LIMIT ${limit} OFFSET ${(page-1)*limit}`,
+   sql`SELECT count(*)::int AS count FROM community_prompts p WHERE (${deleted} = (p.deleted_at IS NOT NULL)) AND (${admin} OR (p.deleted_at IS NULL AND p.status IN ('approved','pending','rejected'))) AND (${effective}='all' OR p.status=${effective}) AND (${q}='' OR p.title ILIKE ${term} OR p.summary ILIKE ${term} OR p.id ILIKE ${term})`
   ]);
   return res.json({prompts:items.map(pack),total:count[0]?.count||0,page,limit});
  }
