@@ -4,7 +4,7 @@ PromptHub là website thư viện prompt AI xây dựng cho repository **LvK2606
 
 ## Chức năng
 
-- 124 prompt mẫu có nội dung thực tế trong 10 nhóm: Viết lách, Lập trình, Marketing, Thiết kế, Học tập, Kinh doanh, Sáng tạo, Năng suất, AI nâng cao và Vibe Coding.
+- 140 prompt mẫu có nội dung thực tế trong 11 nhóm: Viết lách, Lập trình, Marketing, Thiết kế, Học tập, Kinh doanh, Sáng tạo, Năng suất, AI nâng cao, Vibe Coding và Clean TV.
 - Tìm kiếm không phân biệt dấu tiếng Việt (Ctrl/Cmd + K), lọc theo danh mục, sắp xếp và xem chi tiết.
 - Sao chép prompt chỉ một click, tải nội dung từng prompt (.txt), đánh dấu yêu thích.
 - Thêm, chỉnh sửa, xóa prompt cá nhân; xuất/nhập bản sao lưu JSON.
@@ -88,7 +88,7 @@ ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
 ## Facebook Vibe Coding (cập nhật ngày 07/11/2026)
 
 - 24 mẫu prompt tiếng Việt **viết mới** trong danh mục riêng `Vibe Coding`, đánh mã `fbv-001`…`fbv-024`.
-- Tổng kho dữ liệu: **124 prompt / 10 danh mục** (36 gốc + 64 cộng đồng + 24 Vibe Coding).
+- Tổng kho dữ liệu trước đợt Clean TV: **124 prompt / 10 danh mục** (36 gốc + 64 cộng đồng + 24 Vibe Coding).
 - Nguồn **bài viết Facebook có thể kiểm chứng thông qua trang lưu trữ công khai**:
   1. 28/10/2026: lỗi code chạy được trên máy mình nhưng lỗi máy khác (322 bình luận, theo kho lưu trữ).
      https://vibecodingislife.com/archive/why-does-code-work-on-my-computer-but-fail-on-another
@@ -107,3 +107,18 @@ ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
 - Chạy `npm run test:responsive` để kiểm thử số lượng, nguồn, thao tác mobile, tìm kiếm và hồi quy của 100 mẫu trước đó.
 
 **Giới hạn:** Không thể đưa ra bảng "hot nhất Facebook" toàn diện theo reaction/comment nếu không có dữ liệu chính thức từ từng nhóm. Đây là bộ sưu tập có kiểm chứng ở mức nguồn công khai, một số chủ đề được chọn biên tập từ nền tảng khác; không xếp hạng bằng số liệu chưa xác minh.
+
+## CleanYourTV bằng Claude Code — 07/11/2026
+
+**Tổng thư viện hiện tại: 140 prompt / 11 danh mục.** Bổ sung 16 mẫu tiếng Việt biên soạn riêng mã `ctv-001`…`ctv-016`, thuộc danh mục `smarttv` / **Clean TV**. Đây là hướng dẫn và prompt, KHÔNG có AI nào trên website được kết nối trực tiếp tới TV.
+
+- **Nguồn chính thức:** https://github.com/Gathin23/cleanyourtv ; prompt nguyên gốc của tác giả: https://github.com/Gathin23/cleanyourtv/blob/main/PROMPT.md ; quy tắc coding agent: https://github.com/Gathin23/cleanyourtv/blob/main/AGENTS.md .
+- **Nguồn cộng đồng:** Reddit /r/ClaudeAI, /r/coolgithubprojects, /r/GoogleTV, /r/vibecoding; liên kết cụ thể nằm trong `sourceName` và `sourceUrl` của từng prompt.
+- **Tổng hợp nguồn:** xem `docs/CLEAN_TV_SOURCES.md`.
+- **Facebook:** đã tìm bài công khai nhưng **chưa xác minh được link bài Facebook cụ thể**, nên không ngụy tạo nguồn hoặc lượt tương tác Facebook. Đây là nguồn GitHub/Reddit đã đối chiếu.
+- Mẫu `ctv-001` là lời hướng dẫn sử dụng **PROMPT.md chính thức**; không sao chép nguyên văn 20.000+ ký tự của tác giả vào PromptHub. Các mẫu còn lại viết mới, có nhãn nguồn là tài liệu chính thức hoặc thảo luận thành viên.
+- **Tương thích:** chủ yếu Android TV / Google TV. Với Samsung Tizen, LG webOS, Roku, Hisense VIDAA hãy dùng hướng dẫn settings phù hợp; không chạy các công cụ ADB/launcher Android của dự án lên hệ điều hành khác.
+- **An toàn:** phải sao lưu trước; chỉ vô hiệu hóa khi rõ gói và được chủ sở hữu đồng ý; không root/flash, không uninstall hàng loạt; luôn chuẩn bị restore script, bảo vệ Home, Input, HDMI, Wi-Fi, Cast và đóng network ADB khi xong. CleanYourTV là dự án bên thứ ba, việc sửa phần mềm TV có rủi ro; PromptHub không bảo đảm tương thích mọi model.
+- **Giao diện:** khu vực `cleanTvSection` (6 gợi ý), menu sidebar `Clean TV với Claude` (16 prompt), nguồn trong modal, tìm kiếm, tải .txt, yêu thích cục bộ hoặc đồng bộ tài khoản. API cho phép ID `ctv-###` và category `smarttv`.
+- **Tests:** `npm run test:responsive` chạy tất cả Playwright regression, gồm `tests/clean-tv.spec.cjs`.
+
