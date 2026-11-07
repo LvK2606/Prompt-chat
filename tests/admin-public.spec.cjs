@@ -70,6 +70,7 @@ test('suspended account cannot submit a community report in browser',async({page
 test('closed contributions are blocked by public UI before a network request',async({page})=>{
  const posted=publicMocks(page,{role:'member',submissionsOpen:false});
  await page.goto('http://127.0.0.1:4173/');
+ await page.waitForFunction(()=>window.PromptHubCommunity?.submissionsOpen===false);
  await page.evaluate(()=>window.PromptHubCommunity.contribute('custom-local-demo'));
  await expect(page.locator('#toastStack')).toContainText('tạm ngừng nhận prompt');
  expect(posted.some(x=>x.route==='submit')).toBe(false);
