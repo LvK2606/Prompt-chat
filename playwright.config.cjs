@@ -2,7 +2,7 @@ const { defineConfig } = require('@playwright/test');
 module.exports = defineConfig({
   testDir: './tests',
   timeout: 30000,
-  reporter: [['list'], ['html', { open: 'never', outputFolder: 'test-results/report' }]],
+  reporter: [['list'], ['html', { open: 'never', outputFolder: 'qa-report' }]],
   use: {
     browserName: 'chromium',
     headless: true,
