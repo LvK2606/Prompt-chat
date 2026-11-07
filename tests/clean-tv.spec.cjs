@@ -3,19 +3,19 @@ const { test, expect } = require('@playwright/test');
 test('Clean TV collection adds 16 sourced prompts without replacing original 124', async ({page}) => {
   await page.setViewportSize({width:390,height:844});
   await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
-  await expect(page.locator('#statPrompts')).toHaveText('140');
-  await expect(page.locator('#statCategories')).toHaveText('11');
+  await expect(page.locator('#statPrompts')).toHaveText('156');
+  await expect(page.locator('#statCategories')).toHaveText('12');
   await expect(page.locator('#cleanTvCount')).toHaveText('16');
-  await expect(page.locator('#trendingCount')).toHaveText('104');
+  await expect(page.locator('#trendingCount')).toHaveText('120');
   await expect(page.locator('#cleanTvGrid .prompt-card')).toHaveCount(6);
   const dataset=await page.evaluate(()=>({
     prompts:window.PROMPT_SEED,
     categories:window.PROMPT_CATEGORIES,
   }));
   const ctv=dataset.prompts.filter(p=>p.cleanTv);
-  expect(dataset.prompts).toHaveLength(140);
-  expect(new Set(dataset.prompts.map(p=>p.id)).size).toBe(140);
-  expect(dataset.categories).toHaveLength(11);
+  expect(dataset.prompts).toHaveLength(156);
+  expect(new Set(dataset.prompts.map(p=>p.id)).size).toBe(156);
+  expect(dataset.categories).toHaveLength(12);
   expect(ctv).toHaveLength(16);
   expect(ctv.every(p=>p.category==='smarttv' && p.trending && !p.facebookVibe)).toBe(true);
   for(const p of ctv){
