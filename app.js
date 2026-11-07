@@ -69,6 +69,7 @@
       if (state.view === "featured" && !p.featured) return false;
       if (state.view === "trending" && !p.trending) return false;
       if (state.view === "vibe" && !p.facebookVibe) return false;
+      if (state.view === "cleantv" && !p.cleanTv) return false;
       if (state.view === "favorites" && !state.favorites.has(p.id)) return false;
       if (state.view === "mine" && !p.isCustom) return false;
       if (state.category !== "all" && p.category !== state.category) return false;
@@ -85,7 +86,7 @@
     const tags=p.tags.slice(0,3).map(t=>'<span class="tag">#'+escapeHTML(t)+'</span>').join("");
     return '<article class="prompt-card" role="button" tabindex="0" data-open="'+escapeHTML(p.id)+'" aria-label="Xem prompt: '+escapeHTML(p.title)+'">' +
       '<div class="card-top"><span class="card-emoji '+cat.color+'">'+escapeHTML(cat.icon)+'</span><span class="card-category">'+escapeHTML(cat.name)+'</span>' +
-      (p.isCustom ? '<span class="card-my-label">Của tôi</span>' : (p.facebookVibe ? '<span class="vibe-mark" title="Prompt biên soạn mới từ nguồn được ghi rõ">🚀 Vibe</span>' : (p.trending ? '<span class="trend-mark" title="Biên soạn từ xu hướng cộng đồng">🔥 Xu hướng</span>' : ''))) +
+      (p.isCustom ? '<span class="card-my-label">Của tôi</span>' : (p.cleanTv ? '<span class="clean-tv-mark" title="Prompt biên soạn từ tài liệu CleanYourTV và cộng đồng">📺 Clean TV</span>' : (p.facebookVibe ? '<span class="vibe-mark" title="Prompt biên soạn mới từ nguồn được ghi rõ">🚀 Vibe</span>' : (p.trending ? '<span class="trend-mark" title="Biên soạn từ xu hướng cộng đồng">🔥 Xu hướng</span>' : '')))) +
       '<button class="save-button'+(favorite?' saved':'')+'" type="button" aria-label="'+(favorite?'Bỏ lưu':'Lưu')+' '+escapeHTML(p.title)+'" aria-pressed="'+favorite+'" data-save="'+escapeHTML(p.id)+'">'+(favorite?'♥':'♡')+'</button></div>' +
       '<h4>'+escapeHTML(p.title)+'</h4><p>'+escapeHTML(p.summary)+'</p><div class="card-tags">'+tags+'</div>' +
       '<div class="card-foot"><span class="model-label"><span>✦</span>'+escapeHTML(p.model)+'</span><button type="button" class="copy-mini" data-copy="'+escapeHTML(p.id)+'">↗ Sao chép</button></div></article>';
@@ -105,8 +106,8 @@
   function render() {
     const items=getVisible();
     const total=all().length;
-    const viewNames={all:"Khám phá",featured:"Nổi bật",trending:"Xu hướng cộng đồng",vibe:"Vibe Coding",favorites:"Đã lưu",mine:"Prompt của tôi"};
-    const title=state.view === "all" && state.category !== "all" ? getCategory(state.category).name : ({all:"Tất cả prompt",featured:"Prompt nổi bật",trending:"Prompt xu hướng",vibe:"Vibe Coding · 24 prompt",favorites:"Prompt đã lưu",mine:"Prompt của tôi"}[state.view]||"Tất cả prompt");
+    const viewNames={all:"Khám phá",featured:"Nổi bật",trending:"Xu hướng cộng đồng",vibe:"Vibe Coding",cleantv:"Clean TV với Claude",favorites:"Đã lưu",mine:"Prompt của tôi"};
+    const title=state.view === "all" && state.category !== "all" ? getCategory(state.category).name : ({all:"Tất cả prompt",featured:"Prompt nổi bật",trending:"Prompt xu hướng",vibe:"Vibe Coding · 24 prompt",cleantv:"Clean TV · 16 prompt",favorites:"Prompt đã lưu",mine:"Prompt của tôi"}[state.view]||"Tất cả prompt");
     $("breadcrumbText").textContent=state.category!=="all" ? getCategory(state.category).name : viewNames[state.view];
     $("libraryTitle").textContent=title;
     $("resultCount").textContent=items.length+" prompt";
@@ -124,6 +125,9 @@
     $("featuredSection").hidden=!showFeatured;
     $("trendingSection").hidden=!showFeatured;
     $("vibeSection").hidden=!showFeatured;
+    $("cleanTvSection").hidden=!showFeatured;
+    $("cleanTvCount").textContent=String(seed.filter(p=>p.cleanTv).length);
+    if(showFeatured) $("cleanTvGrid").innerHTML=seed.filter(p=>p.cleanTv).slice(0,6).map(cardMarkup).join("");
     $("vibeCount").textContent=String(seed.filter(p=>p.facebookVibe).length);
     if(showFeatured) $("vibeGrid").innerHTML=seed.filter(p=>p.facebookVibe).slice(0,6).map(cardMarkup).join("");
     $("trendingCount").textContent=String(seed.filter(p=>p.trending).length);
@@ -272,6 +276,7 @@
     $("viewFeatured").addEventListener("click",()=>navigate("featured"));
     $("viewTrending").addEventListener("click",()=>navigate("trending"));
     $("viewVibe").addEventListener("click",()=>navigate("vibe"));
+    $("viewCleanTv").addEventListener("click",()=>navigate("cleantv"));
     $("loadMoreBtn").addEventListener("click",()=>{state.visibleLimit+=24;render();});
     $("clearFilters").addEventListener("click",()=>{state.query="";$("searchInput").value="";navigate("all");});
     $("closeEditor").addEventListener("click",()=>closeDialog($("editorDialog")));
