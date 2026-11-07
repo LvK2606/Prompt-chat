@@ -14,6 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./mobile.css">
   <script src="./prompts.js" defer></script>
   <script src="./community.js" defer></script>
   <script src="./app.js" defer></script>
@@ -46,7 +47,7 @@
 
     <div class="workspace">
       <header class="topbar">
-        <div class="topbar-start"><button class="icon-button menu-toggle" id="sidebarToggle" aria-label="Mở danh mục">☰</button><span class="breadcrumb">Không gian sáng tạo <span class="crumb-divider">/</span> <strong id="breadcrumbText">Khám phá</strong></span></div>
+        <div class="topbar-start"><button class="icon-button menu-toggle" id="sidebarToggle" aria-label="Mở danh mục">☰</button><span class="breadcrumb"><span class="breadcrumb-prefix">Không gian sáng tạo</span> <span class="crumb-divider">/</span> <strong id="breadcrumbText">Khám phá</strong></span></div>
         <div class="topbar-end"><span class="topbar-note"><span class="online-dot"></span> Kho ý tưởng của bạn</span><button class="icon-button" id="themeToggle" aria-label="Đổi giao diện sáng tối" title="Đổi giao diện">☾</button><button class="button button-primary top-create" id="topCreate"><span>＋</span> Tạo prompt</button></div>
       </header>
 
@@ -56,7 +57,7 @@
           <div class="hero-text">
             <span class="hero-eyebrow"><span class="eyebrow-star">✦</span> YOUR IDEAS, SUPERCHARGED <span class="eyebrow-line"></span></span>
             <h1>Ý tưởng hay bắt đầu<br>từ một <em>prompt tốt.</em></h1>
-            <p>Khám phá bộ sưu tập prompt AI được tuyển chọn, giúp bạn học nhanh hơn, làm việc thông minh hơn và sáng tạo không giới hạn.</p>
+            <p>Khám phá, lưu và chia sẻ prompt AI chất lượng để học nhanh hơn, làm việc hiệu quả hơn và sáng tạo mỗi ngày.</p>
             <div class="hero-actions"><button class="button button-white" id="exploreBtn">Khám phá ngay <span aria-hidden="true">↗</span></button><button class="hero-text-link" id="heroCreate">Tạo prompt riêng <span>→</span></button></div>
             <div class="hero-proof"><div class="proof-avatars"><span>✍</span><span>⌘</span><span>✦</span></div><div><strong id="heroPromptCount">36+ prompt</strong><small>Cho mọi ý tưởng của bạn</small></div></div>
           </div>
