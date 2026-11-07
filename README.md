@@ -4,7 +4,7 @@ PromptHub là website thư viện prompt AI xây dựng cho repository **LvK2606
 
 ## Chức năng
 
-- 100 prompt mẫu có nội dung thực tế trong 9 nhóm: Viết lách, Lập trình, Marketing, Thiết kế, Học tập, Kinh doanh, Sáng tạo, Năng suất và AI nâng cao.
+- 124 prompt mẫu có nội dung thực tế trong 10 nhóm: Viết lách, Lập trình, Marketing, Thiết kế, Học tập, Kinh doanh, Sáng tạo, Năng suất, AI nâng cao và Vibe Coding.
 - Tìm kiếm không phân biệt dấu tiếng Việt (Ctrl/Cmd + K), lọc theo danh mục, sắp xếp và xem chi tiết.
 - Sao chép prompt chỉ một click, tải nội dung từng prompt (.txt), đánh dấu yêu thích.
 - Thêm, chỉnh sửa, xóa prompt cá nhân; xuất/nhập bản sao lưu JSON.
@@ -84,3 +84,26 @@ ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
 
 **Quyền tác giả:** các mẫu mới không chép nguyên văn Reddit. Nếu bổ sung prompt trực tiếp từ bộ sưu tập bên thứ ba sau này, phải kiểm tra điều khoản/giấy phép riêng của nguồn đó.
 
+
+## Facebook Vibe Coding (cập nhật ngày 07/11/2026)
+
+- 24 mẫu prompt tiếng Việt **viết mới** trong danh mục riêng `Vibe Coding`, đánh mã `fbv-001`…`fbv-024`.
+- Tổng kho dữ liệu: **124 prompt / 10 danh mục** (36 gốc + 64 cộng đồng + 24 Vibe Coding).
+- Nguồn **bài viết Facebook có thể kiểm chứng thông qua trang lưu trữ công khai**:
+  1. 28/10/2026: lỗi code chạy được trên máy mình nhưng lỗi máy khác (322 bình luận, theo kho lưu trữ).
+     https://vibecodingislife.com/archive/why-does-code-work-on-my-computer-but-fail-on-another
+  2. 31/10/2026: lập trình cơ bản có còn cần thiết khi AI viết code (282 bình luận, 107 tương tác).
+     https://vibecodingislife.com/archive/is-a-computer-science-degree-useless-now
+  3. 09/10/2026: tự xây agent giống Claude hay huấn luyện model mới (116 bình luận, 57 tương tác).
+     https://vibecodingislife.com/archive/can-you-build-your-own-claude
+- Nguồn tổng quan **cộng đồng Facebook**: https://vibecodingislife.com/community — mô tả chủ đề builder, demo, feedback và prompt; **không xác nhận từng app là bài viral**.
+- Nguồn **xu hướng đối chiếu từ Reddit**, KHÔNG phải số liệu Facebook:
+  https://vibeheatmap.com/week/2026-W44/
+- Nguồn hướng dẫn cấu trúc prompt, KHÔNG phải số liệu Facebook:
+  https://getvibekits.com/rules/vibe-coding-prompts/
+- Vì nội dung bài đăng Facebook trực tiếp có thể yêu cầu đăng nhập, dữ kiện về từng bài viết được dẫn qua **archive công khai của đơn vị quản lý nhóm**, không khẳng định tự truy cập tất cả bài Facebook.
+- Các mẫu mới **không phải văn bản trích từ Facebook** và không sử dụng dữ liệu bí mật của thành viên; mỗi prompt có `sourceName`, `sourceUrl`, `sourcePlatform` xác định kiểu nguồn và có cảnh báo khi chỉ là chủ đề mở rộng.
+- Giao diện: menu "Vibe Coding" (24 mẫu), danh mục lọc nhanh, khu vực giới thiệu 6 mẫu, modal trích nguồn và lưu yêu thích trên tài khoản. Backend cho phép `fbv-###` trong dấu yêu thích đã đăng nhập; `vibe` được cho phép trong danh mục prompt do người dùng tự tạo.
+- Chạy `npm run test:responsive` để kiểm thử số lượng, nguồn, thao tác mobile, tìm kiếm và hồi quy của 100 mẫu trước đó.
+
+**Giới hạn:** Không thể đưa ra bảng "hot nhất Facebook" toàn diện theo reaction/comment nếu không có dữ liệu chính thức từ từng nhóm. Đây là bộ sưu tập có kiểm chứng ở mức nguồn công khai, một số chủ đề được chọn biên tập từ nền tảng khác; không xếp hạng bằng số liệu chưa xác minh.
