@@ -62,7 +62,6 @@ try{
   if(!["all","approved","pending","rejected","private","deleted"].includes(status))return error(400,"Trạng thái không hợp lệ.");
   const page=Math.min(200,Math.max(1,parseInt(req.query.page,10)||1)),limit=Math.min(50,Math.max(1,parseInt(req.query.limit,10)||20));
   const term="%"+q+"%",deleted=status==="deleted",effective=status==="deleted"?"all":status;
-  const matches=sql`WHERE (${deleted} = (p.deleted_at IS NOT NULL)) AND (${effective}='all' OR p.status=${effective}) AND (${q}='' OR p.title ILIKE ${term} OR p.summary ILIKE ${term} OR p.id ILIKE ${term})`;
   // Avoid dynamic SQL assembly: the two parameterized queries have the same predicates.
   const [items,count]=await Promise.all([
    sql`SELECT p.* FROM community_prompts p WHERE (${deleted} = (p.deleted_at IS NOT NULL)) AND (${effective}='all' OR p.status=${effective}) AND (${q}='' OR p.title ILIKE ${term} OR p.summary ILIKE ${term} OR p.id ILIKE ${term}) ORDER BY p.created_at DESC LIMIT ${limit} OFFSET ${(page-1)*limit}`,
