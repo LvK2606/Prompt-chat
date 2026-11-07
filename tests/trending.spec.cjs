@@ -1,11 +1,11 @@
 const { test, expect } = require('@playwright/test');
 
-test('140 prompts across all 11 categories, including 64 prior sourced trends', async ({ page }) => {
+test('156 prompts across all 12 categories, including 64 prior sourced trends', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('http://127.0.0.1:4173/', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('#statPrompts')).toHaveText('140');
-  await expect(page.locator('#trendingCount')).toHaveText('104');
-  await expect(page.locator('#statCategories')).toHaveText('11');
+  await expect(page.locator('#statPrompts')).toHaveText('156');
+  await expect(page.locator('#trendingCount')).toHaveText('120');
+  await expect(page.locator('#statCategories')).toHaveText('12');
   await expect(page.locator('#trendingGrid .prompt-card')).toHaveCount(6);
   await expect(page.locator('#promptGrid .prompt-card')).toHaveCount(24);
   await expect(page.locator('#loadMoreBtn')).toBeVisible();
@@ -14,8 +14,8 @@ test('140 prompts across all 11 categories, including 64 prior sourced trends', 
     ids: new Set(window.PROMPT_SEED.map(p => p.id)).size,
     trends: window.PROMPT_SEED.filter(p => /^hot-\d{3}$/.test(p.id)),
   }));
-  expect(data.total).toBe(140);
-  expect(data.ids).toBe(140);
+  expect(data.total).toBe(156);
+  expect(data.ids).toBe(156);
   expect(data.trends).toHaveLength(64);
   expect(new Set(data.trends.map(p => p.category)).size).toBe(9);
   for (const p of data.trends) {
@@ -31,7 +31,7 @@ test('trending navigation loads in batches without document overflow', async ({ 
   await page.goto('http://127.0.0.1:4173/');
   await page.locator('#sidebarToggle').click();
   await page.locator('#primaryNav [data-view="trending"]').click();
-  await expect(page.locator('#resultCount')).toHaveText('104 prompt');
+  await expect(page.locator('#resultCount')).toHaveText('120 prompt');
   await expect(page.locator('#trendingSection')).toBeHidden();
   await expect(page.locator('#promptGrid .prompt-card')).toHaveCount(24);
   await page.locator('#loadMoreBtn').click();
