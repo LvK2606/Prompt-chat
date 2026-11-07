@@ -1,0 +1,16 @@
+/* Vibe coding collection — sourced topic research (2026-11-07) */
+.vibe-section{margin-top:28px;padding:23px 24px 24px;border-radius:20px;background:linear-gradient(140deg,#f3f0ff 0%,#faf9ff 55%,#f4f8ff 100%);border:1px solid #eae5ff}
+.vibe-section .subsection-header{margin-bottom:10px}
+.vibe-section h3{font-size:19px}
+.vibe-desc{font-size:12px;line-height:1.75;color:#716f88;max-width:800px;margin-bottom:16px}
+.vibe-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.vibe-grid .prompt-card{min-width:0;background:var(--panel);border-color:#e5e1fb;box-shadow:0 5px 14px #453cb00c}
+.vibe-mark{display:inline-flex;align-items:center;justify-content:center;background:#e4f0ff;color:#346dba;padding:6px 8px;border-radius:8px;font-size:10px;font-weight:800;white-space:nowrap;margin-left:auto}
+.vibe-mark+.save-button{margin-left:0}
+body.dark .vibe-section{background:linear-gradient(135deg,#29233f,#20243a);border-color:#403855}
+body.dark .vibe-desc{color:#b2a9d1}
+body.dark .vibe-mark{background:#23374d;color:#9dccff}
+body.dark .vibe-grid .prompt-card{border-color:#45415f}
+@media(max-width:1060px){.vibe-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.vibe-section{margin-top:24px;padding:16px 15px;border-radius:17px}.vibe-desc{font-size:11.5px;line-height:1.55}.vibe-grid{gap:10px}.vibe-mark{font-size:9px;padding:5px 6px}}
+@media(max-width:480px){.vibe-grid{grid-template-columns:minmax(0,1fr)}.vibe-section h3{font-size:16px}.vibe-grid .prompt-card{min-height:180px}.vibe-section .subsection-header{flex-wrap:wrap;gap:8px}}
